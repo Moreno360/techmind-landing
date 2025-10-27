@@ -244,7 +244,7 @@
     </footer>
 
     <script>
-        const HF_TOKEN = '%%HF_TOKEN%%';
+        const HF_TOKEN = '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';
         const MODEL_URL = 'https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9';
         const EXAMPLES = [
             "¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?",
@@ -278,21 +278,11 @@
             
             try {
                 const response = await fetch(MODEL_URL, {
-                  const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt })
-    });
-
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.response;
-},
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${HF_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         inputs: `<s>[INST] ${question} [/INST]`,
                         parameters: {
