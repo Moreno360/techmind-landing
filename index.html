@@ -278,11 +278,21 @@
             
             try {
                 const response = await fetch(MODEL_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${HF_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
+                  const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt })
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.response;
+},
                     body: JSON.stringify({
                         inputs: `<s>[INST] ${question} [/INST]`,
                         parameters: {
