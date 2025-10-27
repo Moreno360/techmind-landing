@@ -126,11 +126,6 @@
             cursor: pointer;
         }
         
-        .demo-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
         .loading-spinner {
             display: inline-block;
             width: 50px;
@@ -249,11 +244,8 @@
     </footer>
 
     <script>
-        // Variables globales
-        let HF_TOKEN = '';
-        let MODEL_URL = '';
-        let isInitialized = false;
-        
+        const HF_TOKEN = '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';
+        const MODEL_URL = 'https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9';
         const EXAMPLES = [
             "¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?",
             "En Packet Tracer, configura VLAN 10",
@@ -261,35 +253,7 @@
             "Crea ACL que permita HTTP/HTTPS"
         ];
 
-        // Inicializar token desde API de Vercel
-        async function initConfig() {
-            try {
-                console.log('🔄 Cargando configuración...');
-                const response = await fetch('/api/config');
-                
-                if (!response.ok) {
-                    throw new Error('Error al cargar configuración');
-                }
-                
-                const data = await response.json();
-                HF_TOKEN = data.token;
-                MODEL_URL = data.modelUrl;
-                isInitialized = true;
-                
-                console.log('✅ TechMind Pro Ready | Configuración cargada');
-                document.getElementById('demoButton').disabled = false;
-            } catch (error) {
-                console.error('❌ Error inicializando:', error);
-                alert('Error al inicializar. Por favor recarga la página.');
-            }
-        }
-
         async function askTechMind() {
-            if (!isInitialized) {
-                alert('⏳ Esperando inicialización... Intenta de nuevo en unos segundos.');
-                return;
-            }
-
             const input = document.getElementById('demoInput');
             const button = document.getElementById('demoButton');
             const result = document.getElementById('demoResult');
@@ -330,16 +294,11 @@
                     })
                 });
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Error en la respuesta');
-                }
+                if (!response.ok) throw new Error((await response.json()).error);
                 
                 const data = await response.json();
                 let answer = Array.isArray(data) ? data[0].generated_text : data.generated_text;
-                if (answer.includes('[/INST]')) {
-                    answer = answer.split('[/INST]')[1].trim();
-                }
+                if (answer.includes('[/INST]')) answer = answer.split('[/INST]')[1].trim();
                 
                 result.innerHTML = `
                     <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;">
@@ -356,13 +315,11 @@
                 trackDemo(true);
                 
             } catch (error) {
-                console.error('Error:', error);
                 result.innerHTML = `
                     <div style="background:#fff3cd; padding:30px; border-radius:15px;">
                         <h4 style="color:#856404;">⏳ Modelo iniciando...</h4>
-                        <p style="color:#856404;">El modelo puede tardar ~60 segundos en iniciar. Intenta de nuevo.</p>
-                        <p style="color:#666; font-size:0.9em; margin-top:10px;">Error: ${error.message}</p>
-                        <button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer; font-weight:600;">
+                        <p style="color:#856404;">Espera 60 segundos e intenta de nuevo</p>
+                        <button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">
                             🔄 Reintentar
                         </button>
                     </div>
@@ -390,20 +347,10 @@
             document.getElementById('demo-count').textContent = stats.total;
         }
 
-        // Inicializar al cargar la página
         document.addEventListener('DOMContentLoaded', () => {
-            // Deshabilitar botón hasta que se inicialice
-            document.getElementById('demoButton').disabled = true;
-            document.getElementById('demoButton').innerHTML = '⏳ Inicializando...';
-            
-            // Cargar configuración
-            initConfig();
-            
-            // Cargar estadísticas
             const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0}');
             document.getElementById('demo-count').textContent = stats.total;
             
-            // Enter para enviar
             document.getElementById('demoInput').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -411,6 +358,8 @@
                 }
             });
         });
+
+        console.log('✅ TechMind Pro Ready | Delta0723/techmind-pro-v9');
     </script>
 </body>
 </html>
