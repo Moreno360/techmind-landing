@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Only POST requests allowed" });
   }
 
-  const HF_TOKEN = process.env.HF_TOKEN; // lo pondrás en Vercel
+  const HF_TOKEN = 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; // lo pondrás en Vercel
   const MODEL_URL = "https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9";
 
   try {
