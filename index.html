@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechMind Pro - Asistente IA Experto en Redes Cisco</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-box {
+            max-width: 700px;
+            margin: 2rem auto;
+            background: white;
+            color: #333;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .example-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .example-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .demo-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .demo-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .demo-button {
+            width: 100%;
+            padding: 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .features {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">🚀 TechMind Pro</div>
+            <div class="nav-links">
+                <a href="#features">Características</a>
+                <a href="#demo">Demo</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero" id="demo">
+        <h1>Asistente IA Experto en Redes Cisco</h1>
+        <p>93% de precisión | 1,191 casos entrenados | Packet Tracer incluido</p>
+        
+        <div class="demo-box">
+            <h3 style="margin-bottom: 1rem; color: #667eea;">🧪 Prueba TechMind Ahora</h3>
+            
+            <div class="example-buttons">
+                <button class="example-btn" onclick="setExample(0)">IP en interfaz</button>
+                <button class="example-btn" onclick="setExample(1)">VLAN en PT</button>
+                <button class="example-btn" onclick="setExample(2)">OSPF área 0</button>
+                <button class="example-btn" onclick="setExample(3)">ACL HTTP/HTTPS</button>
+            </div>
+            
+            <textarea 
+                id="demoInput" 
+                class="demo-input" 
+                placeholder="Escribe tu pregunta... Ejemplo: ¿Cómo configuro OSPF área 0?"
+            ></textarea>
+            
+            <button id="demoButton" class="demo-button" onclick="askTechMind()">
+                🚀 Preguntar a TechMind Pro
+            </button>
+            
+            <div id="demoResult" style="display:none; margin-top:1.5rem;"></div>
+        </div>
+        
+        <p style="margin-top:1rem; opacity:0.9;">
+            📊 <span id="demo-count">0</span> demos realizados
+        </p>
+    </section>
+
+    <section class="features" id="features">
+        <div class="feature">
+            <div class="feature-icon">⚙️</div>
+            <h3>Configuraciones Cisco</h3>
+            <p>Genera configuraciones completas paso a paso</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔧</div>
+            <h3>Troubleshooting</h3>
+            <p>Diagnostica problemas con guías detalladas</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📚</div>
+            <h3>Packet Tracer</h3>
+            <p>Instrucciones específicas para simulaciones</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>Respuestas Instantáneas</h3>
+            <p>Respuestas en segundos, no horas</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 TechMind Pro | 93% accuracy verificada</p>
+        <p style="margin-top:1rem; opacity:0.8;">
+            <a href="https://huggingface.co/Delta0723/techmind-pro-v9" target="_blank" style="color:white;">
+                Ver modelo en HuggingFace →
+            </a>
+        </p>
+    </footer>
+
+    <script>
+        const HF_TOKEN = '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';
+        const MODEL_URL = 'https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9';
+        const EXAMPLES = [
+            "¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?",
+            "En Packet Tracer, configura VLAN 10",
+            "Configura OSPF área 0 con red 10.0.0.0/8",
+            "Crea ACL que permita HTTP/HTTPS"
+        ];
+
+        async function askTechMind() {
+            const input = document.getElementById('demoInput');
+            const button = document.getElementById('demoButton');
+            const result = document.getElementById('demoResult');
+            const question = input.value.trim();
+            
+            if (!question) {
+                alert('Por favor escribe una pregunta');
+                return;
+            }
+            
+            button.disabled = true;
+            button.innerHTML = '⏳ Pensando...';
+            input.disabled = true;
+            result.style.display = 'block';
+            result.innerHTML = `
+                <div style="text-align:center; padding:40px; background:#f0f7ff; border-radius:15px;">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top:20px; color:#667eea; font-weight:600;">🤔 TechMind está pensando...</p>
+                    <p style="color:#666; font-size:0.9em;"><small>15-30 segundos</small></p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(MODEL_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${HF_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        inputs: `<s>[INST] ${question} [/INST]`,
+                        parameters: {
+                            max_new_tokens: 500,
+                            temperature: 0.7,
+                            top_p: 0.9,
+                            return_full_text: false
+                        }
+                    })
+                });
+                
+                if (!response.ok) throw new Error((await response.json()).error);
+                
+                const data = await response.json();
+                let answer = Array.isArray(data) ? data[0].generated_text : data.generated_text;
+                if (answer.includes('[/INST]')) answer = answer.split('[/INST]')[1].trim();
+                
+                result.innerHTML = `
+                    <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;">
+                        <h4 style="color:#2e7d32;">✅ Respuesta:</h4>
+                        <div style="background:white; padding:20px; border-radius:10px; margin:15px 0;">
+                            <pre style="white-space:pre-wrap; font-family:Consolas,monospace; line-height:1.8; margin:0;">${answer}</pre>
+                        </div>
+                        <button onclick="askAnother()" style="padding:10px 20px; background:white; border:2px solid #4caf50; border-radius:8px; cursor:pointer; color:#4caf50; font-weight:600;">
+                            🔄 Otra pregunta
+                        </button>
+                    </div>
+                `;
+                
+                trackDemo(true);
+                
+            } catch (error) {
+                result.innerHTML = `
+                    <div style="background:#fff3cd; padding:30px; border-radius:15px;">
+                        <h4 style="color:#856404;">⏳ Modelo iniciando...</h4>
+                        <p style="color:#856404;">Espera 60 segundos e intenta de nuevo</p>
+                        <button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '🚀 Preguntar a TechMind Pro';
+                input.disabled = false;
+            }
+        }
+
+        function askAnother() {
+            document.getElementById('demoInput').value = '';
+            document.getElementById('demoResult').style.display = 'none';
+        }
+
+        function setExample(index) {
+            document.getElementById('demoInput').value = EXAMPLES[index];
+        }
+
+        function trackDemo(success) {
+            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0}');
+            stats.total++;
+            localStorage.setItem('techmind_stats', JSON.stringify(stats));
+            document.getElementById('demo-count').textContent = stats.total;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0}');
+            document.getElementById('demo-count').textContent = stats.total;
+            
+            document.getElementById('demoInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    askTechMind();
+                }
+            });
+        });
+
+        console.log('✅ TechMind Pro Ready | Delta0723/techmind-pro-v9');
+    </script>
+</body>
+</html>
