@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const hfResponse = await fetch(MODEL_URL, {
+    const hfResponse = await main(MODEL_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${HF_TOKEN}`,
