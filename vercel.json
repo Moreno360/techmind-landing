@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/techmind.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/techmind",
+      "destination": "/api/techmind.js"
+    }
+  ]
+}

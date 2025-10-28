@@ -1,0 +1,14 @@
+{
+  "name": "techmind-landing",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@huggingface/inference": "^2.6.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

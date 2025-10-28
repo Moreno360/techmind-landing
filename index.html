@@ -244,8 +244,11 @@
     </footer>
 
     <script>
+<<<<<<< HEAD
         const HF_TOKEN = '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';
         const MODEL_URL = 'https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9';
+=======
+>>>>>>> 3dbbfaa (Add API integration)
         const EXAMPLES = [
             "¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?",
             "En Packet Tracer, configura VLAN 10",
@@ -272,37 +275,36 @@
                 <div style="text-align:center; padding:40px; background:#f0f7ff; border-radius:15px;">
                     <div class="loading-spinner"></div>
                     <p style="margin-top:20px; color:#667eea; font-weight:600;">🤔 TechMind está pensando...</p>
-                    <p style="color:#666; font-size:0.9em;"><small>15-30 segundos</small></p>
+                    <p style="color:#666; font-size:0.9em;"><small>5-20 segundos</small></p>
                 </div>
             `;
             
             try {
-                const response = await fetch(MODEL_URL, {
+                const response = await fetch('/api/techmind', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${HF_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        inputs: `<s>[INST] ${question} [/INST]`,
-                        parameters: {
-                            max_new_tokens: 500,
-                            temperature: 0.7,
-                            top_p: 0.9,
-                            return_full_text: false
-                        }
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: question })
                 });
                 
+<<<<<<< HEAD
                 if (!response.ok) throw new Error((await response.json()).error);
                 
                 const data = await response.json();
                 let answer = Array.isArray(data) ? data[0].generated_text : data.generated_text;
+=======
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                let answer = data.generated_text || 'Sin respuesta generada.';
+>>>>>>> 3dbbfaa (Add API integration)
                 if (answer.includes('[/INST]')) answer = answer.split('[/INST]')[1].trim();
                 
                 result.innerHTML = `
                     <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;">
-                        <h4 style="color:#2e7d32;">✅ Respuesta:</h4>
+                        <h4 style="color:#2e7d32;">✅ Respuesta de TechMind Pro:</h4>
                         <div style="background:white; padding:20px; border-radius:10px; margin:15px 0;">
                             <pre style="white-space:pre-wrap; font-family:Consolas,monospace; line-height:1.8; margin:0;">${answer}</pre>
                         </div>
@@ -315,15 +317,25 @@
                 trackDemo(true);
                 
             } catch (error) {
+<<<<<<< HEAD
                 result.innerHTML = `
                     <div style="background:#fff3cd; padding:30px; border-radius:15px;">
                         <h4 style="color:#856404;">⏳ Modelo iniciando...</h4>
                         <p style="color:#856404;">Espera 60 segundos e intenta de nuevo</p>
+=======
+                console.error('Error detallado:', error);
+                result.innerHTML = `
+                    <div style="background:#fff3cd; padding:30px; border-radius:15px;">
+                        <h4 style="color:#856404;">⏳ Error:</h4>
+                        <p style="color:#856404;">${error.message || 'Error desconocido'}</p>
+                        <p>Intenta de nuevo en 30-60 segundos (puede ser cold start del modelo).</p>
+>>>>>>> 3dbbfaa (Add API integration)
                         <button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">
                             🔄 Reintentar
                         </button>
                     </div>
                 `;
+                trackDemo(false);
             } finally {
                 button.disabled = false;
                 button.innerHTML = '🚀 Preguntar a TechMind Pro';
@@ -341,14 +353,19 @@
         }
 
         function trackDemo(success) {
-            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0}');
+            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0,"success":0}');
             stats.total++;
+            if (success) stats.success++;
             localStorage.setItem('techmind_stats', JSON.stringify(stats));
             document.getElementById('demo-count').textContent = stats.total;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+<<<<<<< HEAD
             const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0}');
+=======
+            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0,"success":0}');
+>>>>>>> 3dbbfaa (Add API integration)
             document.getElementById('demo-count').textContent = stats.total;
             
             document.getElementById('demoInput').addEventListener('keydown', (e) => {
@@ -359,7 +376,11 @@
             });
         });
 
+<<<<<<< HEAD
         console.log('✅ TechMind Pro Ready | Delta0723/techmind-pro-v9');
+=======
+        console.log('✅ TechMind Pro Ready | Usando tu modelo LoRA v9');
+>>>>>>> 3dbbfaa (Add API integration)
     </script>
 </body>
 </html>
