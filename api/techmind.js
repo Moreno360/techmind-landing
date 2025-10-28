@@ -1,8 +1,3 @@
-// api/techmind.js - Proxy para Hugging Face con tu LoRA
-import { HfInference } from '@huggingface/inference';
-
-const hf = new HfInference(process.env.HF_TOKEN);
-
 export const config = {
   runtime: 'edge',  // Para mejor rendimiento
 };
@@ -18,20 +13,57 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ error: 'Prompt required' }), { status: 400 });
   }
 
+  const rawToken =
+    process.env.HF_TOKEN ??
+    process.env.HUGGING_FACE_HUB_TOKEN ??
+    process.env.HUGGINGFACEHUB_API_TOKEN ??
+    process.env.HUGGINGFACEHUB_TOKEN;
+
+  const token = typeof rawToken === 'string' ? rawToken.trim() : '';
+
+  if (!token) {
+    console.error('Falta la variable de entorno HF_TOKEN/HUGGING_FACE_HUB_TOKEN');
+    return new Response(
+      JSON.stringify({ error: 'Server misconfigured. Missing HF token.' }),
+      { status: 500 }
+    );
+  }
+
   try {
-    // Llama a tu modelo LoRA directamente (HF lo maneja con base Mistral)
-    const response = await hf.textGeneration({
-      model: 'Delta0723/techmind-pro-v9',  // ¡TU MODELO EXACTO!
-      inputs: `<s>[INST] Eres TechMind Pro, experto en Cisco. Responde paso a paso: ${prompt} [/INST]`,
-      parameters: {
-        max_new_tokens: 500,
-        temperature: 0.7,
-        top_p: 0.9,
-        return_full_text: false,
+    const hfResponse = await fetch('https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        inputs: `<s>[INST] Eres TechMind Pro, experto en Cisco. Responde paso a paso: ${prompt} [/INST]`,
+        parameters: {
+          max_new_tokens: 500,
+          temperature: 0.7,
+          top_p: 0.9,
+          return_full_text: false,
+        },
+        options: {
+          wait_for_model: true,
+          use_cache: false,
+        },
+      }),
+      cache: 'no-store',
     });
 
-    return new Response(JSON.stringify({ generated_text: response.generated_text }), { status: 200 });
+    if (!hfResponse.ok) {
+      const errorPayload = await hfResponse.json().catch(() => ({}));
+      const message = errorPayload.error || `HF request failed with status ${hfResponse.status}`;
+      throw new Error(message);
+    }
+
+    const result = await hfResponse.json();
+    const generatedText = Array.isArray(result)
+      ? result[0]?.generated_text || result[0]?.output_text || result[0]?.generated_texts?.[0]
+      : result?.generated_text || result?.output_text;
+
+    return new Response(JSON.stringify({ generated_text: generatedText || '' }), { status: 200 });
   } catch (error) {
     console.error('HF Inference Error:', error);
     return new Response(JSON.stringify({ error: error.message || 'Inference failed' }), { status: 500 });
