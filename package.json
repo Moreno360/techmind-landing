@@ -5,9 +5,7 @@
   "scripts": {
     "dev": "vercel dev"
   },
-  "dependencies": {
-    "@huggingface/inference": "^2.6.3"
-  },
+  "dependencies": {},
   "engines": {
     "node": ">=18"
   }
