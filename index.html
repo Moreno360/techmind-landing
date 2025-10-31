@@ -57,44 +57,83 @@
     </section>
     <footer><p>© 2025 TechMind Pro | 93% accuracy verificada</p><p style="margin-top:1rem; opacity:0.8;"><a href="https://huggingface.co/Delta0723/techmind-pro-v9" target="_blank" style="color:white;">Ver modelo en HuggingFace →</a></p></footer>
     <script>
-        const HF_TOKEN = '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';
-        const MODEL_URL = 'https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9';
-        const EXAMPLES = ["¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?","En Packet Tracer, configura VLAN 10","Configura OSPF área 0 con red 10.0.0.0/8","Crea ACL que permita HTTP/HTTPS"];
+        // Usamos tu API endpoint que maneja el token de forma segura
+        const EXAMPLES = [
+            "¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?",
+            "En Packet Tracer, configura VLAN 10",
+            "Configura OSPF área 0 con red 10.0.0.0/8",
+            "Crea ACL que permita HTTP/HTTPS"
+        ];
+
         async function askTechMind() {
             const input = document.getElementById('demoInput');
             const button = document.getElementById('demoButton');
             const result = document.getElementById('demoResult');
             const question = input.value.trim();
-            if (!question) { alert('Por favor escribe una pregunta'); return; }
-            button.disabled = true; button.innerHTML = '⏳ Pensando...'; input.disabled = true;
+            
+            if (!question) { 
+                alert('Por favor escribe una pregunta'); 
+                return; 
+            }
+            
+            button.disabled = true; 
+            button.innerHTML = '⏳ Pensando...'; 
+            input.disabled = true;
             result.style.display = 'block';
             result.innerHTML = '<div style="text-align:center; padding:40px; background:#f0f7ff; border-radius:15px;"><div class="loading-spinner"></div><p style="margin-top:20px; color:#667eea; font-weight:600;">🤔 TechMind está pensando...</p><p style="color:#666; font-size:0.9em;"><small>Primera vez 30-60 seg</small></p></div>';
+            
             try {
-                const response = await fetch(MODEL_URL, {
+                // Llamar a TU API endpoint (no directo a HuggingFace)
+                const response = await fetch('/api/techmind', {
                     method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${HF_TOKEN}`, 
-                        'Content-Type': 'application/json' 
-                    },
-                    body: JSON.stringify({ 
-                        inputs: '<s>[INST] '+question+' [/INST]', 
-                        parameters: { 
-                            max_new_tokens: 500, 
-                            temperature: 0.7, 
-                            top_p: 0.9, 
-                            return_full_text: false 
-                        }
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: question })
                 });
-                if (!response.ok) throw new Error((await response.json()).error);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Error ${response.status}`);
+                }
+                
                 const data = await response.json();
-                let answer = Array.isArray(data) ? data[0].generated_text : data.generated_text;
-                if (answer.includes('[/INST]')) answer = answer.split('[/INST]')[1].trim();
-                result.innerHTML = '<div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;"><h4 style="color:#2e7d32;">✅ Respuesta:</h4><div style="background:white; padding:20px; border-radius:10px; margin:15px 0;"><pre style="white-space:pre-wrap; font-family:Consolas,monospace; line-height:1.8; margin:0;">'+answer+'</pre></div><button onclick="askAnother()" style="padding:10px 20px; background:white; border:2px solid #4caf50; border-radius:8px; cursor:pointer; color:#4caf50; font-weight:600;">🔄 Otra pregunta</button></div>';
+                let answer = data.generated_text || 'Sin respuesta';
+                
+                // Limpiar respuesta si viene con el prompt
+                if (answer.includes('[/INST]')) {
+                    answer = answer.split('[/INST]')[1].trim();
+                }
+                
+                result.innerHTML = `
+                    <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;">
+                        <h4 style="color:#2e7d32;">✅ Respuesta de TechMind Pro:</h4>
+                        <div style="background:white; padding:20px; border-radius:10px; margin:15px 0;">
+                            <pre style="white-space:pre-wrap; font-family:Consolas,monospace; line-height:1.8; margin:0;">${answer}</pre>
+                        </div>
+                        <button onclick="askAnother()" style="padding:10px 20px; background:white; border:2px solid #4caf50; border-radius:8px; cursor:pointer; color:#4caf50; font-weight:600;">
+                            🔄 Otra pregunta
+                        </button>
+                    </div>
+                `;
+                
                 trackDemo(true);
+                
             } catch (error) {
                 console.error('Error:', error);
-                result.innerHTML = '<div style="background:#fff3cd; padding:30px; border-radius:15px;"><h4 style="color:#856404;">⏳ Modelo iniciando...</h4><p>Espera 60 seg e intenta de nuevo</p><button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">🔄 Reintentar</button></div>';
+                
+                result.innerHTML = `
+                    <div style="background:#fff3cd; padding:30px; border-radius:15px;">
+                        <h4 style="color:#856404;">⏳ ${error.message}</h4>
+                        <p style="color:#856404;">
+                            ${error.message.includes('loading') 
+                                ? 'El modelo está iniciando. Espera 60 segundos e intenta de nuevo.' 
+                                : 'Hubo un error. Intenta de nuevo.'}
+                        </p>
+                        <button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+                
                 trackDemo(false);
             } finally { 
                 button.disabled = false; 
@@ -102,15 +141,24 @@
                 input.disabled = false; 
             }
         }
-        function askAnother() { document.getElementById('demoInput').value = ''; document.getElementById('demoResult').style.display = 'none'; }
-        function setExample(i) { document.getElementById('demoInput').value = EXAMPLES[i]; }
-        function trackDemo(s) { 
-            const st = JSON.parse(localStorage.getItem('techmind_stats')||'{"total":0,"success":0}'); 
-            st.total++; 
-            if(s) st.success++; 
-            localStorage.setItem('techmind_stats', JSON.stringify(st)); 
-            document.getElementById('demo-count').textContent = st.total; 
+
+        function askAnother() { 
+            document.getElementById('demoInput').value = ''; 
+            document.getElementById('demoResult').style.display = 'none'; 
         }
+
+        function setExample(i) { 
+            document.getElementById('demoInput').value = EXAMPLES[i]; 
+        }
+
+        function trackDemo(success) { 
+            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0,"success":0}'); 
+            stats.total++; 
+            if(success) stats.success++; 
+            localStorage.setItem('techmind_stats', JSON.stringify(stats)); 
+            document.getElementById('demo-count').textContent = stats.total; 
+        }
+
         document.addEventListener('DOMContentLoaded', () => { 
             trackDemo(false); 
             document.getElementById('demoInput').addEventListener('keydown', e => { 
@@ -120,7 +168,8 @@
                 }
             }); 
         });
-        console.log('✅ TechMind Pro Ready | Delta0723/techmind-pro-v9');
+
+        console.log('✅ TechMind Pro Ready | Usando API endpoint seguro');
     </script>
 </body>
 </html>
