@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -72,8 +72,19 @@
             try {
                 const response = await fetch(MODEL_URL, {
                     method: 'POST',
-                    headers: { 'Authorization': Bearer +HF_TOKEN, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ inputs: '<s>[INST] '+question+' [/INST]', parameters: { max_new_tokens: 500, temperature: 0.7, top_p: 0.9, return_full_text: false }})
+                    headers: { 
+                        'Authorization': `Bearer ${HF_TOKEN}`, 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        inputs: '<s>[INST] '+question+' [/INST]', 
+                        parameters: { 
+                            max_new_tokens: 500, 
+                            temperature: 0.7, 
+                            top_p: 0.9, 
+                            return_full_text: false 
+                        }
+                    })
                 });
                 if (!response.ok) throw new Error((await response.json()).error);
                 const data = await response.json();
@@ -82,15 +93,34 @@
                 result.innerHTML = '<div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;"><h4 style="color:#2e7d32;">✅ Respuesta:</h4><div style="background:white; padding:20px; border-radius:10px; margin:15px 0;"><pre style="white-space:pre-wrap; font-family:Consolas,monospace; line-height:1.8; margin:0;">'+answer+'</pre></div><button onclick="askAnother()" style="padding:10px 20px; background:white; border:2px solid #4caf50; border-radius:8px; cursor:pointer; color:#4caf50; font-weight:600;">🔄 Otra pregunta</button></div>';
                 trackDemo(true);
             } catch (error) {
+                console.error('Error:', error);
                 result.innerHTML = '<div style="background:#fff3cd; padding:30px; border-radius:15px;"><h4 style="color:#856404;">⏳ Modelo iniciando...</h4><p>Espera 60 seg e intenta de nuevo</p><button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">🔄 Reintentar</button></div>';
                 trackDemo(false);
-            } finally { button.disabled = false; button.innerHTML = '🚀 Preguntar a TechMind Pro'; input.disabled = false; }
+            } finally { 
+                button.disabled = false; 
+                button.innerHTML = '🚀 Preguntar a TechMind Pro'; 
+                input.disabled = false; 
+            }
         }
         function askAnother() { document.getElementById('demoInput').value = ''; document.getElementById('demoResult').style.display = 'none'; }
         function setExample(i) { document.getElementById('demoInput').value = EXAMPLES[i]; }
-        function trackDemo(s) { const st = JSON.parse(localStorage.getItem('techmind_stats')||'{"total":0}'); st.total++; if(s) st.success++; localStorage.setItem('techmind_stats', JSON.stringify(st)); document.getElementById('demo-count').textContent = st.total; }
-        document.addEventListener('DOMContentLoaded', () => { trackDemo(false); document.getElementById('demoInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askTechMind(); }}); });
-        console.log('✅ TechMind Pro Ready');
+        function trackDemo(s) { 
+            const st = JSON.parse(localStorage.getItem('techmind_stats')||'{"total":0,"success":0}'); 
+            st.total++; 
+            if(s) st.success++; 
+            localStorage.setItem('techmind_stats', JSON.stringify(st)); 
+            document.getElementById('demo-count').textContent = st.total; 
+        }
+        document.addEventListener('DOMContentLoaded', () => { 
+            trackDemo(false); 
+            document.getElementById('demoInput').addEventListener('keydown', e => { 
+                if (e.key === 'Enter' && !e.shiftKey) { 
+                    e.preventDefault(); 
+                    askTechMind(); 
+                }
+            }); 
+        });
+        console.log('✅ TechMind Pro Ready | Delta0723/techmind-pro-v9');
     </script>
 </body>
 </html>
