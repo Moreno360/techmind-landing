@@ -3,25 +3,30 @@ import { HfInference } from '@huggingface/inference';
 
 const hf = new HfInference(process.env.HF_TOKEN);
 
-export const config = {
-  runtime: 'edge',  // Para mejor rendimiento
-};
+// --- BLOQUE 'config' ELIMINADO ---
+// Al eliminar 'export const config', Vercel usará el runtime
+// estándar de Node.js, que tiene timeouts más largos
+// y es ideal para interactuar con APIs de IA.
 
-export default async function handler(req) {
+export default async function handler(req, res) {
+  // Nota: Cambiamos 'req' a 'req, res' para el runtime de Node.js
+  
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { prompt } = await req.json();
+  // En Node.js, el body ya está parseado o se accede con req.body
+  // Vercel maneja esto automáticamente en la mayoría de los casos.
+  const { prompt } = req.body; 
 
   if (!prompt) {
-    return new Response(JSON.stringify({ error: 'Prompt required' }), { status: 400 });
+    return res.status(400).json({ error: 'Prompt required' });
   }
 
   try {
     // Llama a tu modelo LoRA directamente (HF lo maneja con base Mistral)
     const response = await hf.textGeneration({
-      model: 'Delta0723/techmind-pro-v9',  // ¡TU MODELO EXACTO!
+      model: 'Delta0723/techmind-pro-v9', // ¡TU MODELO EXACTO!
       inputs: `<s>[INST] Eres TechMind Pro, experto en Cisco. Responde paso a paso: ${prompt} [/INST]`,
       parameters: {
         max_new_tokens: 500,
@@ -31,9 +36,12 @@ export default async function handler(req) {
       },
     });
 
-    return new Response(JSON.stringify({ generated_text: response.generated_text }), { status: 200 });
+    return res.status(200).json({ generated_text: response.generated_text });
+
   } catch (error) {
     console.error('HF Inference Error:', error);
-    return new Response(JSON.stringify({ error: error.message || 'Inference failed' }), { status: 500 });
+    // Aseguramos que 'error.message' exista
+    const errorMessage = error instanceof Error ? error.message : 'Inference failed';
+    return res.status(500).json({ error: errorMessage });
   }
 }
