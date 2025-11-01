@@ -1,76 +1,111 @@
-// api/techmind.js - Endpoint para TechMind Pro
-import { HfInference } from '@huggingface/inference';
-
+// api/techmind.js
 export default async function handler(req, res) {
-  // CORS headers
+  // CORS
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Handle OPTIONS request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get prompt from body
-  const { prompt } = req.body;
+  const { prompt } = req.body || {};
 
   if (!prompt) {
-    return res.status(400).json({ error: 'Prompt required' });
+    return res.status(400).json({ error: 'Prompt is required' });
   }
 
-  // Verify token exists
-  if (!process.env.HF_TOKEN) {
-    console.error('HF_TOKEN not configured');
-    return res.status(500).json({ error: 'Server configuration error: HF_TOKEN not set' });
+  // Verificar token
+  const token = process.env.HF_TOKEN;
+  if (!token) {
+    console.error('❌ HF_TOKEN not configured in Vercel');
+    return res.status(500).json({ 
+      error: 'Server configuration error',
+      hint: 'HF_TOKEN not set in environment variables'
+    });
   }
+
+  console.log('✅ Token found:', token.substring(0, 10) + '...');
+  console.log('📝 Prompt:', prompt);
 
   try {
-    // Initialize HuggingFace client
-    const hf = new HfInference(process.env.HF_TOKEN);
+    // Llamada directa a HuggingFace API
+    const hfResponse = await fetch(
+      'https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: `<s>[INST] Eres TechMind Pro, experto en Cisco. Responde paso a paso: ${prompt} [/INST]`,
+          parameters: {
+            max_new_tokens: 500,
+            temperature: 0.7,
+            top_p: 0.9,
+            return_full_text: false,
+          },
+        }),
+      }
+    );
 
-    console.log('Calling HuggingFace API...');
+    console.log('📡 HuggingFace status:', hfResponse.status);
+
+    if (!hfResponse.ok) {
+      const errorText = await hfResponse.text();
+      console.error('❌ HuggingFace error:', errorText);
+      
+      // Errores específicos
+      if (hfResponse.status === 503) {
+        return res.status(503).json({ 
+          error: 'Model is loading, please wait 30-60 seconds and try again' 
+        });
+      }
+      
+      if (hfResponse.status === 401) {
+        return res.status(401).json({ 
+          error: 'Invalid HuggingFace token' 
+        });
+      }
+
+      return res.status(hfResponse.status).json({ 
+        error: 'HuggingFace API error',
+        details: errorText 
+      });
+    }
+
+    const data = await hfResponse.json();
+    console.log('✅ Response received');
+
+    // Extraer texto generado
+    let generatedText = '';
     
-    // Call your model
-    const response = await hf.textGeneration({
-      model: 'Delta0723/techmind-pro-v9',
-      inputs: `<s>[INST] Eres TechMind Pro, experto en Cisco. Responde paso a paso: ${prompt} [/INST]`,
-      parameters: {
-        max_new_tokens: 500,
-        temperature: 0.7,
-        top_p: 0.9,
-        return_full_text: false,
-      },
-    });
-
-    console.log('HuggingFace API response received');
+    if (Array.isArray(data) && data.length > 0) {
+      generatedText = data[0].generated_text || '';
+    } else if (data.generated_text) {
+      generatedText = data.generated_text;
+    } else {
+      console.error('❌ Unexpected response format:', data);
+      return res.status(500).json({ 
+        error: 'Unexpected response format from model' 
+      });
+    }
 
     return res.status(200).json({ 
-      generated_text: response.generated_text 
+      generated_text: generatedText 
     });
 
   } catch (error) {
-    console.error('HF Inference Error:', error);
-    
-    // Better error messages
-    let errorMessage = 'Error generating response';
-    
-    if (error.message?.includes('loading')) {
-      errorMessage = 'Model is loading, please wait 30-60 seconds';
-    } else if (error.message?.includes('unauthorized')) {
-      errorMessage = 'Invalid API token';
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-
+    console.error('❌ Error:', error);
     return res.status(500).json({ 
-      error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error.toString() : undefined
+      error: 'Internal server error',
+      message: error.message 
     });
   }
 }
