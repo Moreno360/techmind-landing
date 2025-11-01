@@ -1,32 +1,44 @@
-// api/techmind.js - Proxy para Hugging Face con tu LoRA
+// api/techmind.js - Endpoint para TechMind Pro
 import { HfInference } from '@huggingface/inference';
 
-const hf = new HfInference(process.env.HF_TOKEN);
-
-// --- BLOQUE 'config' ELIMINADO ---
-// Al eliminar 'export const config', Vercel usará el runtime
-// estándar de Node.js, que tiene timeouts más largos
-// y es ideal para interactuar con APIs de IA.
-
 export default async function handler(req, res) {
-  // Nota: Cambiamos 'req' a 'req, res' para el runtime de Node.js
-  
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // En Node.js, el body ya está parseado o se accede con req.body
-  // Vercel maneja esto automáticamente en la mayoría de los casos.
-  const { prompt } = req.body; 
+  // Get prompt from body
+  const { prompt } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt required' });
   }
 
+  // Verify token exists
+  if (!process.env.HF_TOKEN) {
+    console.error('HF_TOKEN not configured');
+    return res.status(500).json({ error: 'Server configuration error: HF_TOKEN not set' });
+  }
+
   try {
-    // Llama a tu modelo LoRA directamente (HF lo maneja con base Mistral)
+    // Initialize HuggingFace client
+    const hf = new HfInference(process.env.HF_TOKEN);
+
+    console.log('Calling HuggingFace API...');
+    
+    // Call your model
     const response = await hf.textGeneration({
-      model: 'Delta0723/techmind-pro-v9', // ¡TU MODELO EXACTO!
+      model: 'Delta0723/techmind-pro-v9',
       inputs: `<s>[INST] Eres TechMind Pro, experto en Cisco. Responde paso a paso: ${prompt} [/INST]`,
       parameters: {
         max_new_tokens: 500,
@@ -36,12 +48,29 @@ export default async function handler(req, res) {
       },
     });
 
-    return res.status(200).json({ generated_text: response.generated_text });
+    console.log('HuggingFace API response received');
+
+    return res.status(200).json({ 
+      generated_text: response.generated_text 
+    });
 
   } catch (error) {
     console.error('HF Inference Error:', error);
-    // Aseguramos que 'error.message' exista
-    const errorMessage = error instanceof Error ? error.message : 'Inference failed';
-    return res.status(500).json({ error: errorMessage });
+    
+    // Better error messages
+    let errorMessage = 'Error generating response';
+    
+    if (error.message?.includes('loading')) {
+      errorMessage = 'Model is loading, please wait 30-60 seconds';
+    } else if (error.message?.includes('unauthorized')) {
+      errorMessage = 'Invalid API token';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return res.status(500).json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.toString() : undefined
+    });
   }
 }
