@@ -1,10 +1,7 @@
-// api/techmind.js
 export default async function handler(req, res) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -17,24 +14,19 @@ export default async function handler(req, res) {
   const { prompt } = req.body || {};
 
   if (!prompt) {
-    return res.status(400).json({ error: 'Prompt is required' });
+    return res.status(400).json({ error: 'Prompt required' });
   }
 
-  // Verificar token
   const token = process.env.HF_TOKEN;
+
   if (!token) {
-    console.error('❌ HF_TOKEN not configured in Vercel');
-    return res.status(500).json({ 
-      error: 'Server configuration error',
-      hint: 'HF_TOKEN not set in environment variables'
-    });
+    console.error('HF_TOKEN not configured');
+    return res.status(500).json({ error: 'Token not configured' });
   }
 
-  console.log('✅ Token found:', token.substring(0, 10) + '...');
-  console.log('📝 Prompt:', prompt);
+  console.log('Token found, calling API...');
 
   try {
-    // Llamada directa a HuggingFace API
     const hfResponse = await fetch(
       'https://api-inference.huggingface.co/models/Delta0723/techmind-pro-v9',
       {
@@ -44,7 +36,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          inputs: `<s>[INST] Eres TechMind Pro, experto en Cisco. Responde paso a paso: ${prompt} [/INST]`,
+          inputs: `<s>[INST] ${prompt} [/INST]`,
           parameters: {
             max_new_tokens: 500,
             temperature: 0.7,
@@ -55,45 +47,43 @@ export default async function handler(req, res) {
       }
     );
 
-    console.log('📡 HuggingFace status:', hfResponse.status);
+    console.log('HuggingFace status:', hfResponse.status);
 
     if (!hfResponse.ok) {
       const errorText = await hfResponse.text();
-      console.error('❌ HuggingFace error:', errorText);
-      
-      // Errores específicos
+      console.error('HuggingFace error:', errorText);
+
       if (hfResponse.status === 503) {
         return res.status(503).json({ 
-          error: 'Model is loading, please wait 30-60 seconds and try again' 
-        });
-      }
-      
-      if (hfResponse.status === 401) {
-        return res.status(401).json({ 
-          error: 'Invalid HuggingFace token' 
+          error: 'Model is loading, wait 60 seconds' 
         });
       }
 
-      return res.status(hfResponse.status).json({ 
+      if (hfResponse.status === 401) {
+        return res.status(401).json({ 
+          error: 'Invalid token' 
+        });
+      }
+
+      return res.status(hfResponse.status).json({
         error: 'HuggingFace API error',
-        details: errorText 
+        details: errorText
       });
     }
 
     const data = await hfResponse.json();
-    console.log('✅ Response received');
+    console.log('Response received');
 
-    // Extraer texto generado
     let generatedText = '';
-    
+
     if (Array.isArray(data) && data.length > 0) {
       generatedText = data[0].generated_text || '';
     } else if (data.generated_text) {
       generatedText = data.generated_text;
     } else {
-      console.error('❌ Unexpected response format:', data);
+      console.error('Unexpected format:', data);
       return res.status(500).json({ 
-        error: 'Unexpected response format from model' 
+        error: 'Unexpected response format' 
       });
     }
 
@@ -102,10 +92,10 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error:', error);
-    return res.status(500).json({ 
+    console.error('Error:', error);
+    return res.status(500).json({
       error: 'Internal server error',
-      message: error.message 
+      message: error.message
     });
   }
 }
