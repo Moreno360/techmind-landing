@@ -9,26 +9,17 @@ export default async function handler(req, res) {
   const { prompt } = req.body || {};
   if (!prompt) return res.status(400).json({ error: 'No prompt' });
 
-  const token = process.env.HF_TOKEN;
-  if (!token) return res.status(500).json({ error: 'No token' });
-
   try {
     const response = await fetch(
-      'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3',
+      'https://ea42e03f852d.ngrok-free.app/generate',
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
         },
-        body: JSON.stringify({
-          inputs: prompt,
-          parameters: {
-            max_new_tokens: 500,
-            temperature: 0.7,
-            return_full_text: false
-          }
-        })
+        body: JSON.stringify({ prompt: prompt }),
+        signal: AbortSignal.timeout(120000)
       }
     );
 
@@ -38,9 +29,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    const text = Array.isArray(data) ? data[0].generated_text : data.generated_text || data[0]?.generated_text || 'Sin respuesta';
-    
-    return res.status(200).json({ generated_text: text });
+    return res.status(200).json({ generated_text: data.generated_text });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
