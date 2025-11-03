@@ -11,15 +11,14 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      'https://ea42e03f852d.ngrok-free.app/generate',
+      'https://97e369c98a5d.ngrok-free.app/generate',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'ngrok-skip-browser-warning': 'true'
         },
-        body: JSON.stringify({ prompt: prompt }),
-        signal: AbortSignal.timeout(120000)
+        body: JSON.stringify({ prompt: prompt })
       }
     );
 
