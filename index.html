@@ -61,7 +61,7 @@
         <div class="feature"><div class="feature-icon">⚡</div><h3>Respuestas Instantáneas</h3><p>Respuestas en segundos, no horas</p></div>
     </section>
     
-    <!-- SECCIÓN PRICING -->
+    <!-- SECCIÓN PRICING CON PAYPAL -->
     <section id="pricing" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 2rem; margin-top: 4rem;">
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <h2 style="color: white; font-size: 2.5rem; margin-bottom: 1rem;">💎 TechMind Pro</h2>
@@ -84,7 +84,7 @@
                     </button>
                 </div>
                 
-                <!-- PREMIUM -->
+                <!-- PREMIUM CON PAYPAL -->
                 <div style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 40px rgba(76,175,80,0.4); transform: scale(1.05); position: relative;">
                     <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #ffd700; color: #333; padding: 0.5rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">⭐ RECOMENDADO</div>
                     <h3 style="font-size: 2rem; color: white; margin-bottom: 1rem; margin-top: 1rem;">Premium</h3>
@@ -96,9 +96,18 @@
                         <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Acceso anticipado a features</li>
                         <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Sin anuncios</li>
                     </ul>
-                    <button onclick="window.location.href='mailto:angelmoreno360plus@gmail.com?subject=Suscripción TechMind Pro Premium&body=Hola, quiero suscribirme a TechMind Pro Premium por €9.99/mes.%0D%0A%0D%0AMi nombre:%0D%0AMi email:%0D%0AMétodo de pago preferido: (PayPal/Transferencia)'" style="width: 100%; padding: 1.2rem; background: white; color: #4caf50; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        🚀 Suscribirme Ahora
+                    
+                    <!-- BOTÓN PAYPAL.ME -->
+                    <button onclick="window.open('https://paypal.me/TechMindAi/9.99EUR', '_blank')" style="width: 100%; padding: 1.2rem; background: white; color: #4caf50; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        💳 Pagar con PayPal
                     </button>
+                    
+                    <p style="color: rgba(255,255,255,0.9); font-size: 0.85rem; margin-top: 1rem; text-align: center;">
+                        Pago seguro con PayPal<br>
+                        Después del pago, envía captura a:<br>
+                        <strong>hola.angelmoreno@gmail.com</strong><br>
+                        <small>Activo tu cuenta en 24h</small>
+                    </p>
                 </div>
             </div>
             
@@ -121,29 +130,30 @@
         const MAX_FREE_DEMOS = 5;
 
         function updateDemoLimit() {
-            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0,"success":0}');
-            const remaining = MAX_FREE_DEMOS - stats.total;
+            const used = parseInt(localStorage.getItem('techmind_demos_used') || '0');
+            const remaining = Math.max(0, MAX_FREE_DEMOS - used);
+            const warningEl = document.getElementById('limitWarning');
+            const remainingEl = document.getElementById('remainingDemos');
             
-            if (remaining <= 3 && remaining > 0) {
-                document.getElementById('limitWarning').style.display = 'block';
-                document.getElementById('remainingDemos').textContent = remaining;
-            } else if (remaining <= 0) {
-                document.getElementById('limitWarning').style.display = 'none';
+            if (remaining <= MAX_FREE_DEMOS && remaining > 0) {
+                warningEl.style.display = 'block';
+                remainingEl.textContent = remaining;
+            } else if (remaining === 0) {
+                warningEl.style.display = 'none';
             }
         }
 
         async function askTechMind() {
-            // VERIFICAR LÍMITE DE DEMOS GRATIS
-            const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0,"success":0}');
+            const used = parseInt(localStorage.getItem('techmind_demos_used') || '0');
             
-            if (stats.total >= MAX_FREE_DEMOS) {
+            if (used >= MAX_FREE_DEMOS) {
                 const result = document.getElementById('demoResult');
                 result.style.display = 'block';
                 result.innerHTML = `
-                    <div style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); padding: 2.5rem; border-radius: 15px; text-align: center; border: 3px solid #ffa000;">
-                        <h3 style="font-size: 2rem; margin-bottom: 1rem;">🎯 ¡Has usado tus ${MAX_FREE_DEMOS} demos gratis!</h3>
-                        <p style="font-size: 1.3rem; margin: 1.5rem 0; color: #333;">
-                            Suscríbete a <strong>TechMind Pro Premium</strong> por solo <strong style="color: #4caf50; font-size: 1.5rem;">€9.99/mes</strong>
+                    <div style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); padding: 2.5rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                        <h3 style="font-size: 2rem; margin-bottom: 1rem;">🎯 ¡Has usado tus 5 demos gratis!</h3>
+                        <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                            Suscríbete a <strong>TechMind Pro Premium</strong> por solo <strong>€9.99/mes</strong>
                         </p>
                         <div style="background: white; padding: 1.5rem; border-radius: 10px; margin: 1.5rem 0;">
                             <p style="font-size: 1.1rem; margin: 0.5rem 0;">✅ Consultas ilimitadas</p>
@@ -154,7 +164,7 @@
                             💎 Ver Planes Premium
                         </button>
                         <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                            📧 Contacto: angelmoreno360plus@gmail.com
+                            📧 Contacto: hola.angelmoreno@gmail.com
                         </p>
                     </div>
                 `;
@@ -208,6 +218,7 @@
                     </div>
                 `;
                 
+                localStorage.setItem('techmind_demos_used', (used + 1).toString());
                 trackDemo(true);
                 updateDemoLimit();
                 
@@ -266,7 +277,7 @@
             }); 
         });
 
-        console.log('✅ TechMind Pro Ready - Production v9-merged');
+        console.log('✅ TechMind Pro Ready - Production with PayPal');
     </script>
 </body>
 </html>
