@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      'https://9bae2fd4d197.ngrok-free.app/generate',
+      'https://e6c14e42e43a.ngrok-free.app/generate',
       {
         method: 'POST',
         headers: {
