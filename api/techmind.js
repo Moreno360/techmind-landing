@@ -1,73 +1,52 @@
-// api/techmindPro.js - USA TU MODELO PROPIO DESPLEGADO EN RUNPOD
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Solo POST permitido' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST' });
 
   const { prompt } = req.body || {};
-  if (!prompt || !prompt.trim()) {
-    return res.status(400).json({ error: 'Prompt vacío' });
-  }
+  if (!prompt) return res.status(400).json({ error: 'No prompt' });
 
   try {
     const response = await fetch(
-      'https://7309349b8d01.ngrok-free.app/generate', // <-- Sustituye esto por tu dominio ngrok actual
+      'https://7309349b8d01.ngrok-free.app/generate',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'ngrok-skip-browser-warning': 'true'
         },
-        body: JSON.stringify({ prompt: prompt.trim() }),
-        signal: AbortSignal.timeout(120000) // 2 minutos
+        body: JSON.stringify({ prompt: prompt }),
+        signal: AbortSignal.timeout(120000)
       }
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      return res.status(response.status).json({
-        error: `Error del servidor: ${response.status}`,
-        details: errorText
-      });
+      const error = await response.text();
+      return res.status(response.status).json({ error });
     }
 
     const data = await response.json();
     let text = data.generated_text || '';
-
-    // Limpiar y sanitizar respuesta
+    
+    // LIMPIAR RESPUESTA
+    // Quitar el prompt original
     if (text.includes('[/INST]')) {
-      text = text.split('[/INST]').pop().trim();
+      text = text.split('[/INST]')[1];
     }
-
-    // Quitar eco del prompt
-    if (text.toLowerCase().startsWith(prompt.toLowerCase().substring(0, 30))) {
-      text = text.substring(prompt.length).trim();
-    }
-
-    text = text.replace(/\s+/g, ' ').trim();
-
+    
+    // Quitar repeticiones
+    text = text.split('\n')[0]; // Solo primera línea
+    
+    // Si está muy corta, dar respuesta básica
     if (text.length < 20) {
-      text = `Para tu consulta sobre "${prompt.substring(0, 50)}...":\n\n` +
-             `1. Ingresa en modo configuración (enable)\n` +
-             `2. Escribe: configure terminal\n` +
-             `3. Luego aplica los comandos necesarios\n\n` +
-             `💡 Intenta escribir una consulta más específica.`;
+      text = `Para configurar esto en Cisco:\n\n1. Entra en modo de configuración: enable\n2. configure terminal\n3. Aplica la configuración específica según tu caso`;
     }
-
-    return res.status(200).json({
-      generated_text: text,
-      prompt: prompt
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      error: 'Error interno',
-      details: error.message
-    });
+    
+    return res.status(200).json({ generated_text: text.trim() });
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
   }
 }
