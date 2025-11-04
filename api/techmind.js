@@ -11,14 +11,15 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      'https://97e369c98a5d.ngrok-free.app/generate',
+      'https://ea42e03f852d.ngrok-free.app/generate',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'ngrok-skip-browser-warning': 'true'
         },
-        body: JSON.stringify({ prompt: prompt })
+        body: JSON.stringify({ prompt: prompt }),
+        signal: AbortSignal.timeout(120000)
       }
     );
 
@@ -28,7 +29,23 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    return res.status(200).json({ generated_text: data.generated_text });
+    let text = data.generated_text || '';
+    
+    // LIMPIAR RESPUESTA
+    // Quitar el prompt original
+    if (text.includes('[/INST]')) {
+      text = text.split('[/INST]')[1];
+    }
+    
+    // Quitar repeticiones
+    text = text.split('\n')[0]; // Solo primera línea
+    
+    // Si está muy corta, dar respuesta básica
+    if (text.length < 20) {
+      text = `Para configurar esto en Cisco:\n\n1. Entra en modo de configuración: enable\n2. configure terminal\n3. Aplica la configuración específica según tu caso`;
+    }
+    
+    return res.status(200).json({ generated_text: text.trim() });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
