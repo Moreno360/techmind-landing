@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      'https://53bb4e6a56a5.ngrok-free.app/generate', // <-- Sustituye esto por tu dominio ngrok actual
+      'https://7309349b8d01.ngrok-free.app/generate', // <-- Sustituye esto por tu dominio ngrok actual
       {
         method: 'POST',
         headers: {
