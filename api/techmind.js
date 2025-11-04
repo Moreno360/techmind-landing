@@ -12,12 +12,12 @@ export default async function handler(req, res) {
   const token = process.env.HF_TOKEN;
   if (!token) return res.status(500).json({ error: 'Token not configured' });
 
-  console.log('🤖 Llamando a Mixtral-8x7B...');
+  console.log('🤖 Llamando a Meta Llama 3.2...');
 
   try {
-    // ✅ Mixtral-8x7B-Instruct - FUNCIONA en Inference API
+    // ✅ Meta-Llama-3.2-3B-Instruct - FUNCIONA en Inference API actual
     const response = await fetch(
-      'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+      'https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-3B-Instruct',
       {
         method: 'POST',
         headers: {
@@ -25,16 +25,16 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          inputs: `<s>[INST] Eres un experto en redes Cisco CCNA/CCNP. Responde de forma clara, paso a paso y con comandos específicos.
+          inputs: `You are a Cisco networking expert specializing in CCNA/CCNP. Provide clear, step-by-step configurations with specific commands.
 
-Pregunta del usuario: ${prompt}
+User question: ${prompt}
 
-Responde solo con la configuración o explicación técnica, sin introducción. [/INST]`,
+Provide only the technical configuration or explanation. Use code blocks for commands.`,
           parameters: {
-            max_new_tokens: 800,
+            max_new_tokens: 700,
             temperature: 0.7,
             top_p: 0.9,
-            repetition_penalty: 1.15,
+            repetition_penalty: 1.1,
             return_full_text: false,
             do_sample: true
           },
@@ -53,25 +53,33 @@ Responde solo con la configuración o explicación técnica, sin introducción. 
       const errorText = await response.text();
       console.error('❌ Error:', errorText);
       
+      // Si el modelo está cargando, dar respuesta útil mientras tanto
       if (response.status === 503) {
         return res.status(200).json({ 
-          generated_text: `⏳ El modelo está iniciando (primera vez tarda 30-60 segundos).
+          generated_text: `⏳ **El modelo está iniciando...**
 
-Por favor, **espera 60 segundos** y haz click en "Reintentar".
+Primera vez tarda 30-60 segundos. **Haz click en "Reintentar" en 1 minuto.**
 
-Mientras tanto, aquí tienes una guía básica para Cisco:
+**Mientras tanto, aquí tienes comandos básicos:**
 
-**Comandos esenciales:**
-\`\`\`
+\`\`\`cisco
+! Entrar a modo privilegiado
 enable
+
+! Entrar a configuración global
 configure terminal
-interface [nombre]
-ip address [IP] [máscara]
+
+! Configurar IP en interfaz
+interface GigabitEthernet0/0
+ip address 192.168.1.1 255.255.255.0
 no shutdown
 exit
+
+! Guardar configuración
+write memory
 \`\`\`
 
-Haz click en "Reintentar" en 60 segundos para tu respuesta completa.` 
+**Vuelve a intentar en 60 segundos para tu respuesta personalizada.** 🚀` 
         });
       }
       
@@ -86,38 +94,46 @@ Haz click en "Reintentar" en 60 segundos para tu respuesta completa.`
     
     let text = '';
     
+    // Manejar diferentes formatos de respuesta
     if (Array.isArray(data) && data.length > 0) {
       text = data[0]?.generated_text || '';
     } else if (data.generated_text) {
       text = data.generated_text;
+    } else if (data[0]?.generated_text) {
+      text = data[0].generated_text;
     }
     
-    // Limpiar
+    // Limpiar respuesta
     text = text
       .replace(/�/g, '')
-      .replace(/<s>\s*\[INST\].*?\[\/INST\]\s*/gs, '')
+      .replace(/You are a Cisco networking expert.*?User question:.*?\n\n/gs, '')
       .trim();
     
-    // Si está vacía o muy corta
+    // Si está vacía o muy corta, dar respuesta básica útil
     if (text.length < 30) {
-      text = `**Configuración básica para Cisco:**
+      text = `**Configuración Cisco básica:**
 
-1. Entra en modo privilegiado:
-   \`\`\`
-   enable
-   \`\`\`
+\`\`\`cisco
+! Modo privilegiado
+enable
 
-2. Entra en configuración global:
-   \`\`\`
-   configure terminal
-   \`\`\`
+! Configuración global
+configure terminal
 
-3. Aplica tu configuración específica según necesites.
+! Configurar interfaz
+interface [tipo/número]
+ip address [IP] [máscara]
+no shutdown
+exit
 
-💡 **Tip:** Para obtener ayuda más específica, describe tu topología o el objetivo que quieres lograr con más detalle.`;
+! Guardar
+write memory
+\`\`\`
+
+💡 **Tip:** Describe tu topología con más detalle para ayuda específica.`;
     }
     
-    console.log(`✅ Enviando respuesta (${text.length} chars)`);
+    console.log(`✅ Enviando respuesta (${text.length} caracteres)`);
     
     return res.status(200).json({ 
       generated_text: text 
@@ -130,17 +146,14 @@ Haz click en "Reintentar" en 60 segundos para tu respuesta completa.`
       return res.status(200).json({
         generated_text: `⏳ **Tiempo de espera agotado**
 
-El modelo tardó demasiado en responder. Esto puede pasar si:
-- Es la primera vez que se usa (cold start)
-- Hay mucha carga en los servidores
+El servidor tardó demasiado. **Haz click en "Reintentar".**
 
-**Solución:** Haz click en "Reintentar" y debería funcionar.
-
-**Configuración básica mientras tanto:**
-\`\`\`
+**Configuración básica:**
+\`\`\`cisco
 enable
 configure terminal
-[tu configuración aquí]
+! Tu configuración aquí
+write memory
 \`\`\``
       });
     }
