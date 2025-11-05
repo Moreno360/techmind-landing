@@ -6,14 +6,128 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST' });
 
-  const { prompt } = req.body || {};
+  const { prompt, language = 'en' } = req.body || {};
   if (!prompt) return res.status(400).json({ error: 'No prompt' });
 
-  // ✅ Usar OpenAI API Key desde variables de entorno
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'OpenAI API key not configured' });
 
-  console.log('🤖 Llamando a GPT-4o-mini...');
+  // 🌍 System prompts multiidioma
+  const systemPrompts = {
+    es: `Eres un experto en redes Cisco CCNA/CCNP. Respondes en ESPAÑOL de forma clara, técnica y concisa.
+
+REGLAS IMPORTANTES:
+✅ Responde explicaciones en ESPAÑOL
+✅ Los COMANDOS siempre en INGLÉS (estándar Cisco IOS)
+✅ Usa bloques de código para comandos
+✅ Sé técnico pero claro
+
+Ejemplo:
+Usuario: "¿Cómo configurar VLAN 10?"
+Tú: "Para configurar la VLAN 10, usa estos comandos:
+
+\`\`\`
+enable
+configure terminal
+vlan 10
+name VENTAS
+exit
+\`\`\`
+
+Esto crea la VLAN 10 con el nombre VENTAS."`,
+
+    en: `You are a Cisco CCNA/CCNP networks expert. You respond in ENGLISH in a clear, technical and concise manner.
+
+IMPORTANT RULES:
+✅ Respond explanations in ENGLISH
+✅ Commands ALWAYS in ENGLISH (standard Cisco IOS)
+✅ Use code blocks for commands
+✅ Be technical but clear
+
+Example:
+User: "How to configure VLAN 10?"
+You: "To configure VLAN 10, use these commands:
+
+\`\`\`
+enable
+configure terminal
+vlan 10
+name SALES
+exit
+\`\`\`
+
+This creates VLAN 10 with the name SALES."`,
+
+    fr: `Tu es un expert en réseaux Cisco CCNA/CCNP. Tu réponds en FRANÇAIS de manière claire, technique et concise.
+
+RÈGLES IMPORTANTES:
+✅ Réponds les explications en FRANÇAIS
+✅ Les COMMANDES toujours en ANGLAIS (standard Cisco IOS)
+✅ Utilise des blocs de code pour les commandes
+✅ Sois technique mais clair
+
+Exemple:
+Utilisateur: "Comment configurer VLAN 10?"
+Toi: "Pour configurer le VLAN 10, utilise ces commandes:
+
+\`\`\`
+enable
+configure terminal
+vlan 10
+name VENTES
+exit
+\`\`\`
+
+Cela crée le VLAN 10 avec le nom VENTES."`,
+
+    de: `Du bist ein Cisco CCNA/CCNP Netzwerk-Experte. Du antwortest auf DEUTSCH klar, technisch und präzise.
+
+WICHTIGE REGELN:
+✅ Antworte Erklärungen auf DEUTSCH
+✅ Befehle IMMER auf ENGLISCH (Standard Cisco IOS)
+✅ Verwende Code-Blöcke für Befehle
+✅ Sei technisch aber verständlich
+
+Beispiel:
+Benutzer: "Wie konfiguriere ich VLAN 10?"
+Du: "Um VLAN 10 zu konfigurieren, verwende diese Befehle:
+
+\`\`\`
+enable
+configure terminal
+vlan 10
+name VERKAUF
+exit
+\`\`\`
+
+Dies erstellt VLAN 10 mit dem Namen VERKAUF."`,
+
+    pt: `Você é um especialista em redes Cisco CCNA/CCNP. Você responde em PORTUGUÊS de forma clara, técnica e concisa.
+
+REGRAS IMPORTANTES:
+✅ Responda explicações em PORTUGUÊS
+✅ Os COMANDOS sempre em INGLÊS (padrão Cisco IOS)
+✅ Use blocos de código para comandos
+✅ Seja técnico mas claro
+
+Exemplo:
+Usuário: "Como configurar VLAN 10?"
+Você: "Para configurar a VLAN 10, use estes comandos:
+
+\`\`\`
+enable
+configure terminal
+vlan 10
+name VENDAS
+exit
+\`\`\`
+
+Isso cria a VLAN 10 com o nome VENDAS."`
+  };
+
+  const systemPrompt = systemPrompts[language] || systemPrompts['en'];
+  
+  console.log(`🤖 Llamando a GPT-4o-mini (idioma: ${language})...`);
 
   try {
     const response = await fetch(
@@ -29,7 +143,7 @@ export default async function handler(req, res) {
           messages: [
             {
               role: 'system',
-              content: 'Eres un experto en redes Cisco CCNA/CCNP. Respondes de forma clara, técnica y concisa con comandos específicos cuando sea relevante. Usas bloques de código para comandos.'
+              content: systemPrompt
             },
             {
               role: 'user',
@@ -57,10 +171,11 @@ export default async function handler(req, res) {
     const data = await response.json();
     const text = data.choices[0]?.message?.content || 'Sin respuesta';
     
-    console.log(`✅ Respuesta generada (${text.length} chars)`);
+    console.log(`✅ Respuesta generada (${text.length} chars, idioma: ${language})`);
     
     return res.status(200).json({ 
-      generated_text: text.trim()
+      generated_text: text.trim(),
+      language: language
     });
 
   } catch (error) {

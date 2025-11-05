@@ -3,15 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechMind Pro - Asistente IA Experto en Redes Cisco</title>
+    <title>TechMind Pro - AI Expert Assistant for Cisco Networks</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        
+        /* 🌍 LANGUAGE SELECTOR SCREEN */
+        #languageSelector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        #languageSelector.hidden {
+            display: none;
+        }
+        
+        .lang-container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .lang-container h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .lang-container p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .language-btn {
+            background: white;
+            border: 3px solid #e0e0e0;
+            padding: 25px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .language-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .language-btn.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .language-btn .flag {
+            font-size: 3em;
+        }
+        
+        .language-btn .name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .continue-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .continue-btn.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .continue-btn.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* MAIN CONTENT (your existing styles) */
         header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 0; position: sticky; top: 0; z-index: 100; }
         nav { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.8rem; font-weight: bold; }
-        .nav-links { display: flex; gap: 2rem; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
         .nav-links a { color: white; text-decoration: none; }
+        
+        /* Language switcher in nav */
+        .lang-switcher {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        
+        .lang-switcher:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
         .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6rem 2rem; text-align: center; }
         .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
         .demo-box { max-width: 700px; margin: 2rem auto; background: white; color: #333; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
@@ -24,120 +149,304 @@
         .demo-button:disabled { opacity: 0.6; cursor: not-allowed; }
         .loading-spinner { display: inline-block; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .features { max-width: 1200px; margin: 4rem auto; padding: 0 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
         .feature { text-align: center; padding: 2rem; }
         .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
         footer { background: #2c3e50; color: white; text-align: center; padding: 2rem; }
+        
+        @media (max-width: 768px) {
+            .lang-container { padding: 30px 20px; }
+            .language-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero h1 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
-    <header><nav><div class="logo">🚀 TechMind Pro</div><div class="nav-links"><a href="#features">Características</a><a href="#pricing">Precios</a><a href="#demo">Demo</a></div></nav></header>
+    <!-- 🌍 LANGUAGE SELECTOR -->
+    <div id="languageSelector">
+        <div class="lang-container">
+            <h1>🌍 Welcome to TechMind!</h1>
+            <p id="langSubtitle">Select your preferred language</p>
+            
+            <div class="language-grid">
+                <div class="language-btn" data-lang="en">
+                    <span class="flag">🇺🇸</span>
+                    <span class="name">English</span>
+                </div>
+                <div class="language-btn" data-lang="es">
+                    <span class="flag">🇪🇸</span>
+                    <span class="name">Español</span>
+                </div>
+                <div class="language-btn" data-lang="fr">
+                    <span class="flag">🇫🇷</span>
+                    <span class="name">Français</span>
+                </div>
+                <div class="language-btn" data-lang="de">
+                    <span class="flag">🇩🇪</span>
+                    <span class="name">Deutsch</span>
+                </div>
+                <div class="language-btn" data-lang="pt">
+                    <span class="flag">🇵🇹</span>
+                    <span class="name">Português</span>
+                </div>
+            </div>
+            
+            <button class="continue-btn" id="continueBtn">
+                Continue →
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT (your existing HTML) -->
+    <header>
+        <nav>
+            <div class="logo">🚀 TechMind Pro</div>
+            <div class="nav-links">
+                <a href="#features" id="navFeatures">Features</a>
+                <a href="#pricing" id="navPricing">Pricing</a>
+                <a href="#demo" id="navDemo">Demo</a>
+                <div class="lang-switcher" id="langSwitcher">
+                    <span id="currentFlag">🇺🇸</span>
+                    <span id="langSwitcherText">Change language</span>
+                </div>
+            </div>
+        </nav>
+    </header>
     
     <section class="hero" id="demo">
-        <h1>Asistente IA Experto en Redes Cisco</h1>
-        <p>93% de precisión | 1,191 casos entrenados | Packet Tracer incluido</p>
+        <h1 id="heroTitle">AI Expert Assistant for Cisco Networks</h1>
+        <p id="heroSubtitle">93% accuracy | 1,191 trained cases | Packet Tracer included</p>
         <div class="demo-box">
-            <h3 style="margin-bottom: 1rem; color: #667eea;">🧪 Prueba TechMind Ahora</h3>
+            <h3 style="margin-bottom: 1rem; color: #667eea;" id="demoBoxTitle">🧪 Try TechMind Now</h3>
             <div id="limitWarning" style="display:none; background:#fff3cd; padding:15px; border-radius:10px; margin-bottom:15px; border-left:5px solid #ffc107;">
-                <p style="color:#856404; font-weight:600;">⚠️ <span id="remainingDemos">5</span> demos gratis restantes</p>
+                <p style="color:#856404; font-weight:600;"><span id="limitWarningText">⚠️ <span id="remainingDemos">5</span> free demos remaining</span></p>
             </div>
-            <div class="example-buttons">
-                <button class="example-btn" onclick="setExample(0)">IP en interfaz</button>
-                <button class="example-btn" onclick="setExample(1)">VLAN en PT</button>
-                <button class="example-btn" onclick="setExample(2)">OSPF área 0</button>
-                <button class="example-btn" onclick="setExample(3)">ACL HTTP/HTTPS</button>
-            </div>
-            <textarea id="demoInput" class="demo-input" placeholder="Escribe tu pregunta..."></textarea>
-            <button id="demoButton" class="demo-button" onclick="askTechMind()">🚀 Preguntar a TechMind Pro</button>
+            <div class="example-buttons" id="exampleButtons"></div>
+            <textarea id="demoInput" class="demo-input" placeholder="Type your question..."></textarea>
+            <button id="demoButton" class="demo-button" onclick="askTechMind()">🚀 Ask TechMind Pro</button>
             <div id="demoResult" style="display:none; margin-top:1.5rem;"></div>
         </div>
-        <p style="margin-top:1rem; opacity:0.9;">📊 <span id="demo-count">0</span> demos realizados</p>
+        <p style="margin-top:1rem; opacity:0.9;"><span id="demoCountLabel">📊 <span id="demo-count">0</span> demos completed</span></p>
     </section>
     
     <section class="features" id="features">
-        <div class="feature"><div class="feature-icon">⚙️</div><h3>Configuraciones Cisco</h3><p>Genera configuraciones completas paso a paso</p></div>
-        <div class="feature"><div class="feature-icon">🔧</div><h3>Troubleshooting</h3><p>Diagnostica problemas con guías detalladas</p></div>
-        <div class="feature"><div class="feature-icon">📚</div><h3>Packet Tracer</h3><p>Instrucciones específicas para simulaciones</p></div>
-        <div class="feature"><div class="feature-icon">⚡</div><h3>Respuestas Instantáneas</h3><p>Respuestas en segundos, no horas</p></div>
+        <div class="feature"><div class="feature-icon">⚙️</div><h3 id="feature1Title">Cisco Configurations</h3><p id="feature1Desc">Generate complete configurations step by step</p></div>
+        <div class="feature"><div class="feature-icon">🔧</div><h3 id="feature2Title">Troubleshooting</h3><p id="feature2Desc">Diagnose problems with detailed guides</p></div>
+        <div class="feature"><div class="feature-icon">📚</div><h3 id="feature3Title">Packet Tracer</h3><p id="feature3Desc">Specific instructions for simulations</p></div>
+        <div class="feature"><div class="feature-icon">⚡</div><h3 id="feature4Title">Instant Responses</h3><p id="feature4Desc">Answers in seconds, not hours</p></div>
     </section>
     
-    <!-- SECCIÓN PRICING CON PAYPAL -->
     <section id="pricing" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 2rem; margin-top: 4rem;">
         <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
             <h2 style="color: white; font-size: 2.5rem; margin-bottom: 1rem;">💎 TechMind Pro</h2>
-            <p style="color: white; font-size: 1.2rem; margin-bottom: 3rem;">Elige el plan perfecto para ti</p>
+            <p style="color: white; font-size: 1.2rem; margin-bottom: 3rem;" id="pricingSubtitle">Choose the perfect plan for you</p>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 800px; margin: 0 auto;">
-                <!-- GRATIS -->
                 <div style="background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                    <h3 style="font-size: 2rem; color: #666; margin-bottom: 1rem;">Gratis</h3>
+                    <h3 style="font-size: 2rem; color: #666; margin-bottom: 1rem;" id="freePlanTitle">Free</h3>
                     <p style="font-size: 3.5rem; font-weight: bold; color: #333; margin: 1.5rem 0;">€0</p>
                     <ul style="list-style: none; padding: 0; text-align: left; margin: 2rem 0;">
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ 5 consultas de prueba</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Acceso al demo público</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem; color: #999;">❌ Respuestas ilimitadas</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem; color: #999;">❌ Soporte prioritario</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem; color: #999;">❌ Sin publicidad</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem;" id="freePlan1">✅ 5 trial queries</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem;" id="freePlan2">✅ Public demo access</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem; color: #999;" id="freePlan3">❌ Unlimited responses</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem; color: #999;" id="freePlan4">❌ Priority support</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem; color: #999;" id="freePlan5">❌ Ad-free</li>
                     </ul>
-                    <button style="width: 100%; padding: 1rem; background: #e0e0e0; color: #666; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer;" disabled>
-                        Plan Actual
+                    <button style="width: 100%; padding: 1rem; background: #e0e0e0; color: #666; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer;" disabled id="currentPlanBtn">
+                        Current Plan
                     </button>
                 </div>
                 
-                <!-- PREMIUM CON PAYPAL -->
                 <div style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 40px rgba(76,175,80,0.4); transform: scale(1.05); position: relative;">
-                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #ffd700; color: #333; padding: 0.5rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">⭐ RECOMENDADO</div>
+                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #ffd700; color: #333; padding: 0.5rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem;" id="recommendedBadge">⭐ RECOMMENDED</div>
                     <h3 style="font-size: 2rem; color: white; margin-bottom: 1rem; margin-top: 1rem;">Premium</h3>
                     <p style="font-size: 3.5rem; font-weight: bold; color: white; margin: 1.5rem 0;">€9.99<span style="font-size: 1.3rem; font-weight: normal;">/mes</span></p>
                     <ul style="list-style: none; padding: 0; text-align: left; margin: 2rem 0; color: white;">
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Consultas ilimitadas</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Respuestas más rápidas</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Soporte técnico directo</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Acceso anticipado a features</li>
-                        <li style="padding: 0.7rem 0; font-size: 1.1rem;">✅ Sin anuncios</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem;" id="premiumPlan1">✅ Unlimited queries</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem;" id="premiumPlan2">✅ Faster responses</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem;" id="premiumPlan3">✅ Direct technical support</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem;" id="premiumPlan4">✅ Early access to features</li>
+                        <li style="padding: 0.7rem 0; font-size: 1.1rem;" id="premiumPlan5">✅ Ad-free</li>
                     </ul>
                     
-                    <!-- BOTÓN PAYPAL.ME -->
-                    <button onclick="window.open('https://paypal.me/TechMindAi/9.99EUR', '_blank')" style="width: 100%; padding: 1.2rem; background: white; color: #4caf50; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        💳 Pagar con PayPal
+                    <button onclick="window.open('https://paypal.me/TechMindAi/9.99EUR', '_blank')" style="width: 100%; padding: 1.2rem; background: white; color: #4caf50; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" id="paypalBtn">
+                        💳 Pay with PayPal
                     </button>
                     
-                    <p style="color: rgba(255,255,255,0.9); font-size: 0.85rem; margin-top: 1rem; text-align: center;">
-                        Pago seguro con PayPal<br>
-                        Después del pago, envía captura a:<br>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 0.85rem; margin-top: 1rem; text-align: center;" id="paymentInfo">
+                        Secure payment with PayPal<br>
+                        After payment, send screenshot to:<br>
                         <strong>hola.angelmoreno@gmail.com</strong><br>
-                        <small>Activo tu cuenta en 24h</small>
+                        <small id="activationTime">Activate your account in 24h</small>
                     </p>
                 </div>
             </div>
             
-            <p style="color: white; margin-top: 3rem; font-size: 1.1rem; opacity: 0.95;">
-                💳 Pago seguro | 🔄 Cancela cuando quieras | ✉️ Soporte 24/7
+            <p style="color: white; margin-top: 3rem; font-size: 1.1rem; opacity: 0.95;" id="pricingFooter">
+                💳 Secure payment | 🔄 Cancel anytime | ✉️ 24/7 support
             </p>
         </div>
     </section>
     
-    <footer><p>© 2025 TechMind Pro | 93% accuracy verificada</p><p style="margin-top:1rem; opacity:0.8;"><a href="https://huggingface.co/Delta0723/techmind-pro-v9-merged" target="_blank" style="color:white;">Ver modelo en HuggingFace →</a></p></footer>
+    <footer>
+        <p>© 2025 TechMind Pro | 93% accuracy verified</p>
+        <p style="margin-top:1rem; opacity:0.8;"><a href="https://huggingface.co/Delta0723/techmind-pro-v9-merged" target="_blank" style="color:white;">View model on HuggingFace →</a></p>
+    </footer>
     
     <script>
-        const EXAMPLES = [
-            "¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?",
-            "En Packet Tracer, configura VLAN 10",
-            "Configura OSPF área 0 con red 10.0.0.0/8",
-            "Crea ACL que permita HTTP/HTTPS"
-        ];
+        // 🌍 TRANSLATIONS
+        const translations = {
+            es: {
+                nav: { features: "Características", pricing: "Precios", demo: "Demo", changeLang: "Cambiar idioma" },
+                hero: { title: "Asistente IA Experto en Redes Cisco", subtitle: "93% de precisión | 1,191 casos entrenados | Packet Tracer incluido" },
+                demo: { title: "🧪 Prueba TechMind Ahora", placeholder: "Escribe tu pregunta...", button: "🚀 Preguntar a TechMind Pro", limitWarning: "demos gratis restantes", demoCount: "demos realizados" },
+                examples: ["IP en interfaz", "VLAN en PT", "OSPF área 0", "ACL HTTP/HTTPS"],
+                exampleTexts: ["¿Cómo configuro IP 192.168.1.1 en GigabitEthernet0/0?", "En Packet Tracer, configura VLAN 10", "Configura OSPF área 0 con red 10.0.0.0/8", "Crea ACL que permita HTTP/HTTPS"],
+                features: { f1t: "Configuraciones Cisco", f1d: "Genera configuraciones completas paso a paso", f2t: "Troubleshooting", f2d: "Diagnostica problemas con guías detalladas", f3t: "Packet Tracer", f3d: "Instrucciones específicas para simulaciones", f4t: "Respuestas Instantáneas", f4d: "Respuestas en segundos, no horas" },
+                pricing: { subtitle: "Elige el plan perfecto para ti", free: "Gratis", premium: "Premium", recommended: "⭐ RECOMENDADO", currentPlan: "Plan Actual", paypalBtn: "💳 Pagar con PayPal", paymentInfo: "Pago seguro con PayPal<br>Después del pago, envía captura a:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Activo tu cuenta en 24h</small>", footer: "💳 Pago seguro | 🔄 Cancela cuando quieras | ✉️ Soporte 24/7" },
+                freePlan: ["✅ 5 consultas de prueba", "✅ Acceso al demo público", "❌ Respuestas ilimitadas", "❌ Soporte prioritario", "❌ Sin publicidad"],
+                premiumPlan: ["✅ Consultas ilimitadas", "✅ Respuestas más rápidas", "✅ Soporte técnico directo", "✅ Acceso anticipado a features", "✅ Sin anuncios"]
+            },
+            en: {
+                nav: { features: "Features", pricing: "Pricing", demo: "Demo", changeLang: "Change language" },
+                hero: { title: "AI Expert Assistant for Cisco Networks", subtitle: "93% accuracy | 1,191 trained cases | Packet Tracer included" },
+                demo: { title: "🧪 Try TechMind Now", placeholder: "Type your question...", button: "🚀 Ask TechMind Pro", limitWarning: "free demos remaining", demoCount: "demos completed" },
+                examples: ["Interface IP", "VLAN in PT", "OSPF area 0", "ACL HTTP/HTTPS"],
+                exampleTexts: ["How do I configure IP 192.168.1.1 on GigabitEthernet0/0?", "In Packet Tracer, configure VLAN 10", "Configure OSPF area 0 with network 10.0.0.0/8", "Create ACL allowing HTTP/HTTPS"],
+                features: { f1t: "Cisco Configurations", f1d: "Generate complete configurations step by step", f2t: "Troubleshooting", f2d: "Diagnose problems with detailed guides", f3t: "Packet Tracer", f3d: "Specific instructions for simulations", f4t: "Instant Responses", f4d: "Answers in seconds, not hours" },
+                pricing: { subtitle: "Choose the perfect plan for you", free: "Free", premium: "Premium", recommended: "⭐ RECOMMENDED", currentPlan: "Current Plan", paypalBtn: "💳 Pay with PayPal", paymentInfo: "Secure payment with PayPal<br>After payment, send screenshot to:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Activate your account in 24h</small>", footer: "💳 Secure payment | 🔄 Cancel anytime | ✉️ 24/7 support" },
+                freePlan: ["✅ 5 trial queries", "✅ Public demo access", "❌ Unlimited responses", "❌ Priority support", "❌ Ad-free"],
+                premiumPlan: ["✅ Unlimited queries", "✅ Faster responses", "✅ Direct technical support", "✅ Early access to features", "✅ Ad-free"]
+            },
+            fr: {
+                nav: { features: "Caractéristiques", pricing: "Tarifs", demo: "Démo", changeLang: "Changer de langue" },
+                hero: { title: "Assistant IA Expert pour Réseaux Cisco", subtitle: "93% de précision | 1,191 cas formés | Packet Tracer inclus" },
+                demo: { title: "🧪 Essayez TechMind Maintenant", placeholder: "Tapez votre question...", button: "🚀 Demander à TechMind Pro", limitWarning: "démos gratuits restants", demoCount: "démos réalisés" },
+                examples: ["IP interface", "VLAN dans PT", "OSPF zone 0", "ACL HTTP/HTTPS"],
+                exampleTexts: ["Comment configurer l'IP 192.168.1.1 sur GigabitEthernet0/0?", "Dans Packet Tracer, configurez VLAN 10", "Configurez OSPF zone 0 avec réseau 10.0.0.0/8", "Créez ACL permettant HTTP/HTTPS"],
+                features: { f1t: "Configurations Cisco", f1d: "Générez des configurations complètes étape par étape", f2t: "Dépannage", f2d: "Diagnostiquez les problèmes avec des guides détaillés", f3t: "Packet Tracer", f3d: "Instructions spécifiques pour les simulations", f4t: "Réponses Instantanées", f4d: "Réponses en secondes, pas en heures" },
+                pricing: { subtitle: "Choisissez le plan parfait pour vous", free: "Gratuit", premium: "Premium", recommended: "⭐ RECOMMANDÉ", currentPlan: "Plan Actuel", paypalBtn: "💳 Payer avec PayPal", paymentInfo: "Paiement sécurisé avec PayPal<br>Après le paiement, envoyez une capture d'écran à:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Activez votre compte en 24h</small>", footer: "💳 Paiement sécurisé | 🔄 Annuler à tout moment | ✉️ Support 24/7" },
+                freePlan: ["✅ 5 requêtes d'essai", "✅ Accès démo public", "❌ Réponses illimitées", "❌ Support prioritaire", "❌ Sans publicité"],
+                premiumPlan: ["✅ Requêtes illimitées", "✅ Réponses plus rapides", "✅ Support technique direct", "✅ Accès anticipé aux fonctionnalités", "✅ Sans publicité"]
+            },
+            de: {
+                nav: { features: "Funktionen", pricing: "Preise", demo: "Demo", changeLang: "Sprache ändern" },
+                hero: { title: "KI-Experte für Cisco-Netzwerke", subtitle: "93% Genauigkeit | 1,191 trainierte Fälle | Packet Tracer enthalten" },
+                demo: { title: "🧪 Probieren Sie TechMind Jetzt", placeholder: "Geben Sie Ihre Frage ein...", button: "🚀 Fragen Sie TechMind Pro", limitWarning: "kostenlose Demos übrig", demoCount: "Demos abgeschlossen" },
+                examples: ["Interface IP", "VLAN in PT", "OSPF Bereich 0", "ACL HTTP/HTTPS"],
+                exampleTexts: ["Wie konfiguriere ich IP 192.168.1.1 auf GigabitEthernet0/0?", "Konfigurieren Sie in Packet Tracer VLAN 10", "Konfigurieren Sie OSPF Bereich 0 mit Netzwerk 10.0.0.0/8", "Erstellen Sie ACL, die HTTP/HTTPS erlaubt"],
+                features: { f1t: "Cisco-Konfigurationen", f1d: "Erstellen Sie vollständige Konfigurationen Schritt für Schritt", f2t: "Fehlerbehebung", f2d: "Diagnostizieren Sie Probleme mit detaillierten Anleitungen", f3t: "Packet Tracer", f3d: "Spezifische Anweisungen für Simulationen", f4t: "Sofortige Antworten", f4d: "Antworten in Sekunden, nicht Stunden" },
+                pricing: { subtitle: "Wählen Sie den perfekten Plan für Sie", free: "Kostenlos", premium: "Premium", recommended: "⭐ EMPFOHLEN", currentPlan: "Aktueller Plan", paypalBtn: "💳 Mit PayPal bezahlen", paymentInfo: "Sichere Zahlung mit PayPal<br>Nach der Zahlung senden Sie einen Screenshot an:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Aktivieren Sie Ihr Konto in 24h</small>", footer: "💳 Sichere Zahlung | 🔄 Jederzeit kündbar | ✉️ 24/7 Support" },
+                freePlan: ["✅ 5 Test-Anfragen", "✅ Öffentlicher Demo-Zugang", "❌ Unbegrenzte Antworten", "❌ Prioritätssupport", "❌ Werbefrei"],
+                premiumPlan: ["✅ Unbegrenzte Anfragen", "✅ Schnellere Antworten", "✅ Direkter technischer Support", "✅ Frühzeitiger Zugang zu Funktionen", "✅ Werbefrei"]
+            },
+            pt: {
+                nav: { features: "Características", pricing: "Preços", demo: "Demo", changeLang: "Mudar idioma" },
+                hero: { title: "Assistente IA Especialista em Redes Cisco", subtitle: "93% de precisão | 1,191 casos treinados | Packet Tracer incluído" },
+                demo: { title: "🧪 Experimente TechMind Agora", placeholder: "Digite sua pergunta...", button: "🚀 Perguntar ao TechMind Pro", limitWarning: "demos grátis restantes", demoCount: "demos realizadas" },
+                examples: ["IP em interface", "VLAN no PT", "OSPF área 0", "ACL HTTP/HTTPS"],
+                exampleTexts: ["Como configuro IP 192.168.1.1 em GigabitEthernet0/0?", "No Packet Tracer, configure VLAN 10", "Configure OSPF área 0 com rede 10.0.0.0/8", "Crie ACL que permita HTTP/HTTPS"],
+                features: { f1t: "Configurações Cisco", f1d: "Gere configurações completas passo a passo", f2t: "Solução de problemas", f2d: "Diagnostique problemas com guias detalhados", f3t: "Packet Tracer", f3d: "Instruções específicas para simulações", f4t: "Respostas Instantâneas", f4d: "Respostas em segundos, não horas" },
+                pricing: { subtitle: "Escolha o plano perfeito para você", free: "Grátis", premium: "Premium", recommended: "⭐ RECOMENDADO", currentPlan: "Plano Atual", paypalBtn: "💳 Pagar com PayPal", paymentInfo: "Pagamento seguro com PayPal<br>Após o pagamento, envie captura de tela para:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Ative sua conta em 24h</small>", footer: "💳 Pagamento seguro | 🔄 Cancele quando quiser | ✉️ Suporte 24/7" },
+                freePlan: ["✅ 5 consultas de teste", "✅ Acesso ao demo público", "❌ Respostas ilimitadas", "❌ Suporte prioritário", "❌ Sem anúncios"],
+                premiumPlan: ["✅ Consultas ilimitadas", "✅ Respostas mais rápidas", "✅ Suporte técnico direto", "✅ Acesso antecipado a recursos", "✅ Sem anúncios"]
+            }
+        };
         
+        const flags = { en: '🇺🇸', es: '🇪🇸', fr: '🇫🇷', de: '🇩🇪', pt: '🇵🇹' };
         const MAX_FREE_DEMOS = 5;
+        let selectedLanguage = localStorage.getItem('techmind_language') || null;
+
+        // 🌍 LANGUAGE SELECTOR
+        document.querySelectorAll('.language-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.language-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedLanguage = this.dataset.lang;
+                document.getElementById('continueBtn').classList.add('active');
+            });
+        });
+
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            if (selectedLanguage) {
+                localStorage.setItem('techmind_language', selectedLanguage);
+                document.getElementById('languageSelector').classList.add('hidden');
+                updateUI();
+            }
+        });
+
+        document.getElementById('langSwitcher').addEventListener('click', function() {
+            document.getElementById('languageSelector').classList.remove('hidden');
+        });
+
+        function updateUI() {
+            const t = translations[selectedLanguage];
+            document.getElementById('navFeatures').textContent = t.nav.features;
+            document.getElementById('navPricing').textContent = t.nav.pricing;
+            document.getElementById('navDemo').textContent = t.nav.demo;
+            document.getElementById('langSwitcherText').textContent = t.nav.changeLang;
+            document.getElementById('currentFlag').textContent = flags[selectedLanguage];
+            
+            document.getElementById('heroTitle').textContent = t.hero.title;
+            document.getElementById('heroSubtitle').textContent = t.hero.subtitle;
+            document.getElementById('demoBoxTitle').textContent = t.demo.title;
+            document.getElementById('demoInput').placeholder = t.demo.placeholder;
+            document.getElementById('demoButton').textContent = t.demo.button;
+            
+            // Example buttons
+            const exampleButtons = document.getElementById('exampleButtons');
+            exampleButtons.innerHTML = '';
+            t.examples.forEach((example, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'example-btn';
+                btn.textContent = example;
+                btn.onclick = () => setExample(i);
+                exampleButtons.appendChild(btn);
+            });
+            
+            // Features
+            document.getElementById('feature1Title').textContent = t.features.f1t;
+            document.getElementById('feature1Desc').textContent = t.features.f1d;
+            document.getElementById('feature2Title').textContent = t.features.f2t;
+            document.getElementById('feature2Desc').textContent = t.features.f2d;
+            document.getElementById('feature3Title').textContent = t.features.f3t;
+            document.getElementById('feature3Desc').textContent = t.features.f3d;
+            document.getElementById('feature4Title').textContent = t.features.f4t;
+            document.getElementById('feature4Desc').textContent = t.features.f4d;
+            
+            // Pricing
+            document.getElementById('pricingSubtitle').textContent = t.pricing.subtitle;
+            document.getElementById('freePlanTitle').textContent = t.pricing.free;
+            document.getElementById('recommendedBadge').textContent = t.pricing.recommended;
+            document.getElementById('currentPlanBtn').textContent = t.pricing.currentPlan;
+            document.getElementById('paypalBtn').textContent = t.pricing.paypalBtn;
+            document.getElementById('paymentInfo').innerHTML = t.pricing.paymentInfo;
+            document.getElementById('pricingFooter').textContent = t.pricing.footer;
+            
+            // Free plan
+            for(let i = 0; i < 5; i++) {
+                document.getElementById(`freePlan${i+1}`).textContent = t.freePlan[i];
+                document.getElementById(`premiumPlan${i+1}`).textContent = t.premiumPlan[i];
+            }
+        }
+
+        function setExample(i) {
+            const t = translations[selectedLanguage];
+            document.getElementById('demoInput').value = t.exampleTexts[i];
+        }
 
         function updateDemoLimit() {
             const used = parseInt(localStorage.getItem('techmind_demos_used') || '0');
             const remaining = Math.max(0, MAX_FREE_DEMOS - used);
             const warningEl = document.getElementById('limitWarning');
             const remainingEl = document.getElementById('remainingDemos');
+            const t = translations[selectedLanguage];
             
             if (remaining <= MAX_FREE_DEMOS && remaining > 0) {
                 warningEl.style.display = 'block';
                 remainingEl.textContent = remaining;
+                document.getElementById('limitWarningText').innerHTML = `⚠️ ${remaining} ${t.demo.limitWarning}`;
             } else if (remaining === 0) {
                 warningEl.style.display = 'none';
             }
@@ -145,26 +454,27 @@
 
         async function askTechMind() {
             const used = parseInt(localStorage.getItem('techmind_demos_used') || '0');
+            const t = translations[selectedLanguage];
             
             if (used >= MAX_FREE_DEMOS) {
                 const result = document.getElementById('demoResult');
                 result.style.display = 'block';
                 result.innerHTML = `
                     <div style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); padding: 2.5rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                        <h3 style="font-size: 2rem; margin-bottom: 1rem;">🎯 ¡Has usado tus 5 demos gratis!</h3>
+                        <h3 style="font-size: 2rem; margin-bottom: 1rem;">🎯 ${selectedLanguage === 'es' ? '¡Has usado tus 5 demos gratis!' : selectedLanguage === 'en' ? 'You\'ve used your 5 free demos!' : selectedLanguage === 'fr' ? 'Vous avez utilisé vos 5 démos gratuits!' : selectedLanguage === 'de' ? 'Sie haben Ihre 5 kostenlosen Demos verwendet!' : 'Você usou suas 5 demos grátis!'}</h3>
                         <p style="font-size: 1.2rem; margin-bottom: 2rem;">
-                            Suscríbete a <strong>TechMind Pro Premium</strong> por solo <strong>€9.99/mes</strong>
+                            ${selectedLanguage === 'es' ? 'Suscríbete a' : selectedLanguage === 'en' ? 'Subscribe to' : selectedLanguage === 'fr' ? 'Abonnez-vous à' : selectedLanguage === 'de' ? 'Abonnieren Sie' : 'Assine'} <strong>TechMind Pro Premium</strong> ${selectedLanguage === 'es' ? 'por solo' : selectedLanguage === 'en' ? 'for only' : selectedLanguage === 'fr' ? 'pour seulement' : selectedLanguage === 'de' ? 'für nur' : 'por apenas'} <strong>€9.99/mes</strong>
                         </p>
                         <div style="background: white; padding: 1.5rem; border-radius: 10px; margin: 1.5rem 0;">
-                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">✅ Consultas ilimitadas</p>
-                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">✅ Respuestas más rápidas</p>
-                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">✅ Soporte técnico directo</p>
+                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">${t.premiumPlan[0]}</p>
+                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">${t.premiumPlan[1]}</p>
+                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">${t.premiumPlan[2]}</p>
                         </div>
                         <button onclick="window.location.href='#pricing'" style="padding: 1.2rem 3rem; background: #4caf50; color: white; border: none; border-radius: 10px; font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-                            💎 Ver Planes Premium
+                            💎 ${selectedLanguage === 'es' ? 'Ver Planes Premium' : selectedLanguage === 'en' ? 'View Premium Plans' : selectedLanguage === 'fr' ? 'Voir les Plans Premium' : selectedLanguage === 'de' ? 'Premium-Pläne ansehen' : 'Ver Planos Premium'}
                         </button>
                         <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                            📧 Contacto: hola.angelmoreno@gmail.com
+                            📧 ${selectedLanguage === 'es' ? 'Contacto' : selectedLanguage === 'en' ? 'Contact' : selectedLanguage === 'fr' ? 'Contact' : selectedLanguage === 'de' ? 'Kontakt' : 'Contato'}: hola.angelmoreno@gmail.com
                         </p>
                     </div>
                 `;
@@ -177,21 +487,21 @@
             const question = input.value.trim();
             
             if (!question) { 
-                alert('Por favor escribe una pregunta'); 
+                alert(selectedLanguage === 'es' ? 'Por favor escribe una pregunta' : selectedLanguage === 'en' ? 'Please type a question' : selectedLanguage === 'fr' ? 'Veuillez taper une question' : selectedLanguage === 'de' ? 'Bitte geben Sie eine Frage ein' : 'Por favor digite uma pergunta'); 
                 return; 
             }
             
             button.disabled = true; 
-            button.innerHTML = '⏳ Pensando...'; 
+            button.innerHTML = selectedLanguage === 'es' ? '⏳ Pensando...' : selectedLanguage === 'en' ? '⏳ Thinking...' : selectedLanguage === 'fr' ? '⏳ En réflexion...' : selectedLanguage === 'de' ? '⏳ Denke nach...' : '⏳ Pensando...'; 
             input.disabled = true;
             result.style.display = 'block';
-            result.innerHTML = '<div style="text-align:center; padding:40px; background:#f0f7ff; border-radius:15px;"><div class="loading-spinner"></div><p style="margin-top:20px; color:#667eea; font-weight:600;">🤔 TechMind está pensando...</p><p style="color:#666; font-size:0.9em;"><small>Primera vez 30-60 seg</small></p></div>';
+            result.innerHTML = `<div style="text-align:center; padding:40px; background:#f0f7ff; border-radius:15px;"><div class="loading-spinner"></div><p style="margin-top:20px; color:#667eea; font-weight:600;">${selectedLanguage === 'es' ? '🤔 TechMind está pensando...' : selectedLanguage === 'en' ? '🤔 TechMind is thinking...' : selectedLanguage === 'fr' ? '🤔 TechMind réfléchit...' : selectedLanguage === 'de' ? '🤔 TechMind denkt nach...' : '🤔 TechMind está pensando...'}</p><p style="color:#666; font-size:0.9em;"><small>${selectedLanguage === 'es' ? 'Primera vez 30-60 seg' : selectedLanguage === 'en' ? 'First time 30-60 sec' : selectedLanguage === 'fr' ? 'Première fois 30-60 sec' : selectedLanguage === 'de' ? 'Erstes Mal 30-60 Sek' : 'Primeira vez 30-60 seg'}</small></p></div>`;
             
             try {
                 const response = await fetch('/api/techmind', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: question })
+                    body: JSON.stringify({ prompt: question, language: selectedLanguage })
                 });
                 
                 if (!response.ok) {
@@ -200,7 +510,7 @@
                 }
                 
                 const data = await response.json();
-                let answer = data.generated_text || 'Sin respuesta';
+                let answer = data.generated_text || (selectedLanguage === 'es' ? 'Sin respuesta' : selectedLanguage === 'en' ? 'No response' : selectedLanguage === 'fr' ? 'Pas de réponse' : selectedLanguage === 'de' ? 'Keine Antwort' : 'Sem resposta');
                 
                 if (answer.includes('[/INST]')) {
                     answer = answer.split('[/INST]')[1].trim();
@@ -208,12 +518,12 @@
                 
                 result.innerHTML = `
                     <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;">
-                        <h4 style="color:#2e7d32;">✅ Respuesta de TechMind Pro:</h4>
+                        <h4 style="color:#2e7d32;">✅ ${selectedLanguage === 'es' ? 'Respuesta de TechMind Pro' : selectedLanguage === 'en' ? 'TechMind Pro Response' : selectedLanguage === 'fr' ? 'Réponse de TechMind Pro' : selectedLanguage === 'de' ? 'TechMind Pro Antwort' : 'Resposta do TechMind Pro'}:</h4>
                         <div style="background:white; padding:20px; border-radius:10px; margin:15px 0;">
                             <pre style="white-space:pre-wrap; font-family:Consolas,monospace; line-height:1.8; margin:0;">${answer}</pre>
                         </div>
                         <button onclick="askAnother()" style="padding:10px 20px; background:white; border:2px solid #4caf50; border-radius:8px; cursor:pointer; color:#4caf50; font-weight:600;">
-                            🔄 Otra pregunta
+                            🔄 ${selectedLanguage === 'es' ? 'Otra pregunta' : selectedLanguage === 'en' ? 'Another question' : selectedLanguage === 'fr' ? 'Autre question' : selectedLanguage === 'de' ? 'Andere Frage' : 'Outra pergunta'}
                         </button>
                     </div>
                 `;
@@ -230,11 +540,11 @@
                         <h4 style="color:#856404;">⏳ ${error.message}</h4>
                         <p style="color:#856404;">
                             ${error.message.includes('loading') 
-                                ? 'El modelo está iniciando. Espera 60 segundos e intenta de nuevo.' 
-                                : 'Hubo un error. Intenta de nuevo.'}
+                                ? (selectedLanguage === 'es' ? 'El modelo está iniciando. Espera 60 segundos e intenta de nuevo.' : selectedLanguage === 'en' ? 'The model is starting. Wait 60 seconds and try again.' : selectedLanguage === 'fr' ? 'Le modèle démarre. Attendez 60 secondes et réessayez.' : selectedLanguage === 'de' ? 'Das Modell startet. Warten Sie 60 Sekunden und versuchen Sie es erneut.' : 'O modelo está iniciando. Aguarde 60 segundos e tente novamente.')
+                                : (selectedLanguage === 'es' ? 'Hubo un error. Intenta de nuevo.' : selectedLanguage === 'en' ? 'There was an error. Try again.' : selectedLanguage === 'fr' ? 'Il y a eu une erreur. Réessayez.' : selectedLanguage === 'de' ? 'Es gab einen Fehler. Versuchen Sie es erneut.' : 'Houve um erro. Tente novamente.')}
                         </p>
                         <button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">
-                            🔄 Reintentar
+                            🔄 ${selectedLanguage === 'es' ? 'Reintentar' : selectedLanguage === 'en' ? 'Retry' : selectedLanguage === 'fr' ? 'Réessayer' : selectedLanguage === 'de' ? 'Erneut versuchen' : 'Tentar novamente'}
                         </button>
                     </div>
                 `;
@@ -242,7 +552,7 @@
                 trackDemo(false);
             } finally { 
                 button.disabled = false; 
-                button.innerHTML = '🚀 Preguntar a TechMind Pro'; 
+                button.innerHTML = t.demo.button; 
                 input.disabled = false; 
             }
         }
@@ -250,10 +560,6 @@
         function askAnother() { 
             document.getElementById('demoInput').value = ''; 
             document.getElementById('demoResult').style.display = 'none'; 
-        }
-
-        function setExample(i) { 
-            document.getElementById('demoInput').value = EXAMPLES[i]; 
         }
 
         function trackDemo(success) { 
@@ -265,6 +571,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => { 
+            if (selectedLanguage) {
+                document.getElementById('languageSelector').classList.add('hidden');
+                updateUI();
+            }
             updateDemoLimit();
             const stats = JSON.parse(localStorage.getItem('techmind_stats') || '{"total":0}');
             document.getElementById('demo-count').textContent = stats.total;
@@ -277,7 +587,7 @@
             }); 
         });
 
-        console.log('✅ TechMind Pro Ready - Production with PayPal');
+        console.log('✅ TechMind Pro Ready - Multilingual + PayPal');
     </script>
 </body>
 </html>
