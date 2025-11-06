@@ -8,6 +8,41 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
         
+        /* 🔥 EARLY BIRD BANNER ANIMATIONS */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Responsive Early Bird Banner */
+        @media (max-width: 768px) {
+            #early-bird-banner h3 {
+                font-size: 1.2em !important;
+            }
+            #early-bird-banner p {
+                font-size: 0.95em !important;
+            }
+            #early-bird-banner a {
+                font-size: 1em !important;
+                padding: 10px 20px !important;
+            }
+        }
+        
         /* 🌍 LANGUAGE SELECTOR SCREEN */
         #languageSelector {
             position: fixed;
@@ -198,6 +233,77 @@
         </div>
     </div>
 
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- 🔥 EARLY BIRD BANNER MULTIIDIOMA -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="early-bird-banner" style="
+        background: linear-gradient(135deg, #ffd700 0%, #ffb900 100%);
+        padding: 20px;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border-bottom: 3px solid #ff8800;
+        animation: slideDown 0.5s ease-out;
+    ">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <h3 id="banner-title" style="
+                margin: 0 0 8px 0;
+                color: #000;
+                font-size: 1.5em;
+                font-weight: 800;
+                text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
+            ">
+                🔥 EARLY BIRD SPECIAL - 72 HOURS ONLY 🔥
+            </h3>
+            
+            <p id="banner-subtitle" style="
+                margin: 5px 0 10px 0;
+                color: #1a1a1a;
+                font-size: 1.15em;
+                font-weight: 600;
+            ">
+                <span id="banner-first50">First 50 subscribers</span>: <strong style="font-size: 1.2em; color: #d00;">€4.99/month FOREVER</strong> 
+                <span style="text-decoration: line-through; opacity: 0.7;">(<span id="banner-regular">Regular</span>: €9.99/month)</span>
+            </p>
+            
+            <div style="
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+                flex-wrap: wrap;
+                margin-top: 10px;
+            ">
+                <div style="font-size: 1em; color: #000;">
+                    ⏰ <span id="spots-left" style="font-weight: 700;">47</span> <span id="spots-text">spots left</span>
+                </div>
+                
+                <div style="font-size: 1em; color: #000;">
+                    ⏳ <span id="ends-text">Ends in</span>: <span id="countdown" style="font-weight: 700; font-family: monospace;">71:23:45</span>
+                </div>
+            </div>
+            
+            <a href="https://paypal.me/TechMindAi/4.99EUR" id="banner-cta" style="
+                display: inline-block;
+                margin-top: 15px;
+                padding: 12px 30px;
+                background: #000;
+                color: #ffd700;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 700;
+                font-size: 1.1em;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
+                animation: pulse 2s infinite;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                🚀 CLAIM EARLY BIRD PRICE
+            </a>
+        </div>
+    </div>
+
     <!-- MAIN CONTENT (your existing HTML) -->
     <header>
         <nav>
@@ -306,7 +412,15 @@
                 features: { f1t: "Configuraciones Cisco", f1d: "Genera configuraciones completas paso a paso", f2t: "Troubleshooting", f2d: "Diagnostica problemas con guías detalladas", f3t: "Packet Tracer", f3d: "Instrucciones específicas para simulaciones", f4t: "Respuestas Instantáneas", f4d: "Respuestas en segundos, no horas" },
                 pricing: { subtitle: "Elige el plan perfecto para ti", free: "Gratis", premium: "Premium", recommended: "⭐ RECOMENDADO", currentPlan: "Plan Actual", paypalBtn: "💳 Pagar con PayPal", paymentInfo: "Pago seguro con PayPal<br>Después del pago, envía captura a:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Activo tu cuenta en 24h</small>", footer: "💳 Pago seguro | 🔄 Cancela cuando quieras | ✉️ Soporte 24/7" },
                 freePlan: ["✅ 5 consultas de prueba", "✅ Acceso al demo público", "❌ Respuestas ilimitadas", "❌ Soporte prioritario", "❌ Sin publicidad"],
-                premiumPlan: ["✅ Consultas ilimitadas", "✅ Respuestas más rápidas", "✅ Soporte técnico directo", "✅ Acceso anticipado a features", "✅ Sin anuncios"]
+                premiumPlan: ["✅ Consultas ilimitadas", "✅ Respuestas más rápidas", "✅ Soporte técnico directo", "✅ Acceso anticipado a features", "✅ Sin anuncios"],
+                earlyBird: {
+                    title: "🔥 OFERTA EARLY BIRD - SOLO 72 HORAS 🔥",
+                    first50: "Primeros 50 suscriptores",
+                    regular: "Regular",
+                    spotsLeft: "lugares restantes",
+                    endsIn: "Termina en",
+                    cta: "🚀 OBTENER PRECIO EARLY BIRD"
+                }
             },
             en: {
                 nav: { features: "Features", pricing: "Pricing", demo: "Demo", changeLang: "Change language" },
@@ -317,7 +431,15 @@
                 features: { f1t: "Cisco Configurations", f1d: "Generate complete configurations step by step", f2t: "Troubleshooting", f2d: "Diagnose problems with detailed guides", f3t: "Packet Tracer", f3d: "Specific instructions for simulations", f4t: "Instant Responses", f4d: "Answers in seconds, not hours" },
                 pricing: { subtitle: "Choose the perfect plan for you", free: "Free", premium: "Premium", recommended: "⭐ RECOMMENDED", currentPlan: "Current Plan", paypalBtn: "💳 Pay with PayPal", paymentInfo: "Secure payment with PayPal<br>After payment, send screenshot to:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Activate your account in 24h</small>", footer: "💳 Secure payment | 🔄 Cancel anytime | ✉️ 24/7 support" },
                 freePlan: ["✅ 5 trial queries", "✅ Public demo access", "❌ Unlimited responses", "❌ Priority support", "❌ Ad-free"],
-                premiumPlan: ["✅ Unlimited queries", "✅ Faster responses", "✅ Direct technical support", "✅ Early access to features", "✅ Ad-free"]
+                premiumPlan: ["✅ Unlimited queries", "✅ Faster responses", "✅ Direct technical support", "✅ Early access to features", "✅ Ad-free"],
+                earlyBird: {
+                    title: "🔥 EARLY BIRD SPECIAL - 72 HOURS ONLY 🔥",
+                    first50: "First 50 subscribers",
+                    regular: "Regular",
+                    spotsLeft: "spots left",
+                    endsIn: "Ends in",
+                    cta: "🚀 CLAIM EARLY BIRD PRICE"
+                }
             },
             fr: {
                 nav: { features: "Caractéristiques", pricing: "Tarifs", demo: "Démo", changeLang: "Changer de langue" },
@@ -328,7 +450,15 @@
                 features: { f1t: "Configurations Cisco", f1d: "Générez des configurations complètes étape par étape", f2t: "Dépannage", f2d: "Diagnostiquez les problèmes avec des guides détaillés", f3t: "Packet Tracer", f3d: "Instructions spécifiques pour les simulations", f4t: "Réponses Instantanées", f4d: "Réponses en secondes, pas en heures" },
                 pricing: { subtitle: "Choisissez le plan parfait pour vous", free: "Gratuit", premium: "Premium", recommended: "⭐ RECOMMANDÉ", currentPlan: "Plan Actuel", paypalBtn: "💳 Payer avec PayPal", paymentInfo: "Paiement sécurisé avec PayPal<br>Après le paiement, envoyez une capture d'écran à:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Activez votre compte en 24h</small>", footer: "💳 Paiement sécurisé | 🔄 Annuler à tout moment | ✉️ Support 24/7" },
                 freePlan: ["✅ 5 requêtes d'essai", "✅ Accès démo public", "❌ Réponses illimitées", "❌ Support prioritaire", "❌ Sans publicité"],
-                premiumPlan: ["✅ Requêtes illimitées", "✅ Réponses plus rapides", "✅ Support technique direct", "✅ Accès anticipé aux fonctionnalités", "✅ Sans publicité"]
+                premiumPlan: ["✅ Requêtes illimitées", "✅ Réponses plus rapides", "✅ Support technique direct", "✅ Accès anticipé aux fonctionnalités", "✅ Sans publicité"],
+                earlyBird: {
+                    title: "🔥 OFFRE EARLY BIRD - 72 HEURES SEULEMENT 🔥",
+                    first50: "Premiers 50 abonnés",
+                    regular: "Régulier",
+                    spotsLeft: "places restantes",
+                    endsIn: "Se termine dans",
+                    cta: "🚀 OBTENIR LE PRIX EARLY BIRD"
+                }
             },
             de: {
                 nav: { features: "Funktionen", pricing: "Preise", demo: "Demo", changeLang: "Sprache ändern" },
@@ -339,7 +469,15 @@
                 features: { f1t: "Cisco-Konfigurationen", f1d: "Erstellen Sie vollständige Konfigurationen Schritt für Schritt", f2t: "Fehlerbehebung", f2d: "Diagnostizieren Sie Probleme mit detaillierten Anleitungen", f3t: "Packet Tracer", f3d: "Spezifische Anweisungen für Simulationen", f4t: "Sofortige Antworten", f4d: "Antworten in Sekunden, nicht Stunden" },
                 pricing: { subtitle: "Wählen Sie den perfekten Plan für Sie", free: "Kostenlos", premium: "Premium", recommended: "⭐ EMPFOHLEN", currentPlan: "Aktueller Plan", paypalBtn: "💳 Mit PayPal bezahlen", paymentInfo: "Sichere Zahlung mit PayPal<br>Nach der Zahlung senden Sie einen Screenshot an:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Aktivieren Sie Ihr Konto in 24h</small>", footer: "💳 Sichere Zahlung | 🔄 Jederzeit kündbar | ✉️ 24/7 Support" },
                 freePlan: ["✅ 5 Test-Anfragen", "✅ Öffentlicher Demo-Zugang", "❌ Unbegrenzte Antworten", "❌ Prioritätssupport", "❌ Werbefrei"],
-                premiumPlan: ["✅ Unbegrenzte Anfragen", "✅ Schnellere Antworten", "✅ Direkter technischer Support", "✅ Frühzeitiger Zugang zu Funktionen", "✅ Werbefrei"]
+                premiumPlan: ["✅ Unbegrenzte Anfragen", "✅ Schnellere Antworten", "✅ Direkter technischer Support", "✅ Frühzeitiger Zugang zu Funktionen", "✅ Werbefrei"],
+                earlyBird: {
+                    title: "🔥 EARLY BIRD ANGEBOT - NUR 72 STUNDEN 🔥",
+                    first50: "Erste 50 Abonnenten",
+                    regular: "Regulär",
+                    spotsLeft: "Plätze übrig",
+                    endsIn: "Endet in",
+                    cta: "🚀 EARLY BIRD PREIS SICHERN"
+                }
             },
             pt: {
                 nav: { features: "Características", pricing: "Preços", demo: "Demo", changeLang: "Mudar idioma" },
@@ -350,7 +488,15 @@
                 features: { f1t: "Configurações Cisco", f1d: "Gere configurações completas passo a passo", f2t: "Solução de problemas", f2d: "Diagnostique problemas com guias detalhados", f3t: "Packet Tracer", f3d: "Instruções específicas para simulações", f4t: "Respostas Instantâneas", f4d: "Respostas em segundos, não horas" },
                 pricing: { subtitle: "Escolha o plano perfeito para você", free: "Grátis", premium: "Premium", recommended: "⭐ RECOMENDADO", currentPlan: "Plano Atual", paypalBtn: "💳 Pagar com PayPal", paymentInfo: "Pagamento seguro com PayPal<br>Após o pagamento, envie captura de tela para:<br><strong>hola.angelmoreno@gmail.com</strong><br><small>Ative sua conta em 24h</small>", footer: "💳 Pagamento seguro | 🔄 Cancele quando quiser | ✉️ Suporte 24/7" },
                 freePlan: ["✅ 5 consultas de teste", "✅ Acesso ao demo público", "❌ Respostas ilimitadas", "❌ Suporte prioritário", "❌ Sem anúncios"],
-                premiumPlan: ["✅ Consultas ilimitadas", "✅ Respostas mais rápidas", "✅ Suporte técnico direto", "✅ Acesso antecipado a recursos", "✅ Sem anúncios"]
+                premiumPlan: ["✅ Consultas ilimitadas", "✅ Respostas mais rápidas", "✅ Suporte técnico direto", "✅ Acesso antecipado a recursos", "✅ Sem anúncios"],
+                earlyBird: {
+                    title: "🔥 OFERTA EARLY BIRD - APENAS 72 HORAS 🔥",
+                    first50: "Primeiros 50 assinantes",
+                    regular: "Regular",
+                    spotsLeft: "vagas restantes",
+                    endsIn: "Termina em",
+                    cta: "🚀 GARANTIR PREÇO EARLY BIRD"
+                }
             }
         };
         
@@ -422,6 +568,14 @@
             document.getElementById('currentPlanBtn').textContent = t.pricing.currentPlan;
             document.getElementById('paypalBtn').textContent = t.pricing.paypalBtn;
             document.getElementById('paymentInfo').innerHTML = t.pricing.paymentInfo;
+            
+            // Early Bird Banner
+            document.getElementById('banner-title').textContent = t.earlyBird.title;
+            document.getElementById('banner-first50').textContent = t.earlyBird.first50;
+            document.getElementById('banner-regular').textContent = t.earlyBird.regular;
+            document.getElementById('spots-text').textContent = t.earlyBird.spotsLeft;
+            document.getElementById('ends-text').textContent = t.earlyBird.endsIn;
+            document.getElementById('banner-cta').textContent = t.earlyBird.cta;
             document.getElementById('pricingFooter').textContent = t.pricing.footer;
             
             // Free plan
@@ -587,7 +741,59 @@
             }); 
         });
 
-        console.log('✅ TechMind Pro Ready - Multilingual + PayPal');
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 🔥 EARLY BIRD COUNTDOWN & SPOTS LEFT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        (function() {
+            // Configuración: 72 horas desde ahora
+            const STORAGE_KEY = 'early_bird_end_time';
+            let endTime;
+            
+            const storedTime = localStorage.getItem(STORAGE_KEY);
+            if (storedTime) {
+                endTime = new Date(storedTime);
+            } else {
+                endTime = new Date();
+                endTime.setHours(endTime.getHours() + 72); // 72 horas
+                localStorage.setItem(STORAGE_KEY, endTime.toISOString());
+            }
+            
+            function updateCountdown() {
+                const now = new Date();
+                const diff = endTime - now;
+                
+                // Si ya terminó, ocultar banner
+                if (diff <= 0) {
+                    document.getElementById('countdown').textContent = '00:00:00';
+                    document.getElementById('early-bird-banner').style.display = 'none';
+                    localStorage.removeItem(STORAGE_KEY);
+                    return;
+                }
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown').textContent = 
+                    `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            }
+            
+            // Actualizar cada segundo
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+            
+            // Spots left (variación aleatoria para urgencia)
+            function updateSpotsLeft() {
+                const spots = Math.floor(Math.random() * 8) + 42; // 42-49
+                document.getElementById('spots-left').textContent = spots;
+            }
+            
+            // Actualizar spots cada 30 segundos
+            setInterval(updateSpotsLeft, 30000);
+            updateSpotsLeft();
+        })();
+
+        console.log('✅ TechMind Pro Ready - Multilingual + PayPal + Early Bird');
     </script>
 </body>
 </html>
