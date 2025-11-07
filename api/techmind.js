@@ -12,15 +12,15 @@ export default async function handler(req, res) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'OpenAI API key not configured' });
 
-  // 🌍 System prompts multiidioma
+  // System prompts multiidioma
   const systemPrompts = {
     es: `Eres un experto en redes Cisco CCNA/CCNP. Respondes en ESPAÑOL de forma clara, técnica y concisa.
 
 REGLAS IMPORTANTES:
-✅ Responde explicaciones en ESPAÑOL
-✅ Los COMANDOS siempre en INGLÉS (estándar Cisco IOS)
-✅ Usa bloques de código para comandos
-✅ Sé técnico pero claro
+- Responde explicaciones en ESPAÑOL
+- Los COMANDOS siempre en INGLÉS (estándar Cisco IOS)
+- Usa bloques de código para comandos
+- Sé técnico pero claro
 
 Ejemplo:
 Usuario: "¿Cómo configurar VLAN 10?"
@@ -39,10 +39,10 @@ Esto crea la VLAN 10 con el nombre VENTAS."`,
     en: `You are a Cisco CCNA/CCNP networks expert. You respond in ENGLISH in a clear, technical and concise manner.
 
 IMPORTANT RULES:
-✅ Respond explanations in ENGLISH
-✅ Commands ALWAYS in ENGLISH (standard Cisco IOS)
-✅ Use code blocks for commands
-✅ Be technical but clear
+- Respond explanations in ENGLISH
+- Commands ALWAYS in ENGLISH (standard Cisco IOS)
+- Use code blocks for commands
+- Be technical but clear
 
 Example:
 User: "How to configure VLAN 10?"
@@ -61,10 +61,10 @@ This creates VLAN 10 with the name SALES."`,
     fr: `Tu es un expert en réseaux Cisco CCNA/CCNP. Tu réponds en FRANÇAIS de manière claire, technique et concise.
 
 RÈGLES IMPORTANTES:
-✅ Réponds les explications en FRANÇAIS
-✅ Les COMMANDES toujours en ANGLAIS (standard Cisco IOS)
-✅ Utilise des blocs de code pour les commandes
-✅ Sois technique mais clair
+- Réponds les explications en FRANÇAIS
+- Les COMMANDES toujours en ANGLAIS (standard Cisco IOS)
+- Utilise des blocs de code pour les commandes
+- Sois technique mais clair
 
 Exemple:
 Utilisateur: "Comment configurer VLAN 10?"
@@ -83,10 +83,10 @@ Cela crée le VLAN 10 avec le nom VENTES."`,
     de: `Du bist ein Cisco CCNA/CCNP Netzwerk-Experte. Du antwortest auf DEUTSCH klar, technisch und präzise.
 
 WICHTIGE REGELN:
-✅ Antworte Erklärungen auf DEUTSCH
-✅ Befehle IMMER auf ENGLISCH (Standard Cisco IOS)
-✅ Verwende Code-Blöcke für Befehle
-✅ Sei technisch aber verständlich
+- Antworte Erklärungen auf DEUTSCH
+- Befehle IMMER auf ENGLISCH (Standard Cisco IOS)
+- Verwende Code-Blöcke für Befehle
+- Sei technisch aber verständlich
 
 Beispiel:
 Benutzer: "Wie konfiguriere ich VLAN 10?"
@@ -105,10 +105,10 @@ Dies erstellt VLAN 10 mit dem Namen VERKAUF."`,
     pt: `Você é um especialista em redes Cisco CCNA/CCNP. Você responde em PORTUGUÊS de forma clara, técnica e concisa.
 
 REGRAS IMPORTANTES:
-✅ Responda explicações em PORTUGUÊS
-✅ Os COMANDOS sempre em INGLÊS (padrão Cisco IOS)
-✅ Use blocos de código para comandos
-✅ Seja técnico mas claro
+- Responda explicações em PORTUGUÊS
+- Os COMANDOS sempre em INGLÊS (padrão Cisco IOS)
+- Use blocos de código para comandos
+- Seja técnico mas claro
 
 Exemplo:
 Usuário: "Como configurar VLAN 10?"
@@ -127,7 +127,7 @@ Isso cria a VLAN 10 com o nome VENDAS."`
 
   const systemPrompt = systemPrompts[language] || systemPrompts['en'];
   
-  console.log(`🤖 Llamando a GPT-4o-mini (idioma: ${language})...`);
+  console.log(`Llamando a GPT-4o-mini (idioma: ${language})...`);
 
   try {
     const response = await fetch(
@@ -157,11 +157,11 @@ Isso cria a VLAN 10 com o nome VENDAS."`
       }
     );
 
-    console.log('✅ Status:', response.status);
+    console.log('Status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('❌ Error OpenAI:', errorData);
+      console.error('Error OpenAI:', errorData);
       return res.status(response.status).json({
         error: 'Error en OpenAI API',
         details: errorData.error?.message || 'Unknown error'
@@ -171,7 +171,7 @@ Isso cria a VLAN 10 com o nome VENDAS."`
     const data = await response.json();
     const text = data.choices[0]?.message?.content || 'Sin respuesta';
     
-    console.log(`✅ Respuesta generada (${text.length} chars, idioma: ${language})`);
+    console.log(`Respuesta generada (${text.length} chars, idioma: ${language})`);
     
     return res.status(200).json({ 
       generated_text: text.trim(),
@@ -179,7 +179,7 @@ Isso cria a VLAN 10 com o nome VENDAS."`
     });
 
   } catch (error) {
-    console.error('💥 Error:', error);
+    console.error('Error:', error);
     
     if (error.name === 'AbortError') {
       return res.status(504).json({

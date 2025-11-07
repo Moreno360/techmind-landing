@@ -161,11 +161,22 @@ async function askTechMind() {
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Error ${response.status}`);
+      let errorMessage = `Error ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        // Si no puede parsear JSON, es un error de servidor
+        errorMessage = `Server error (${response.status})`;
+      }
+      throw new Error(errorMessage);
     }
     
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      throw new Error('Invalid response from server. Please try again.');
     let answer = data.generated_text || 'No response';
     
     // Limpiar tokens de modelo
