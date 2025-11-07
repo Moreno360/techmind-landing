@@ -177,6 +177,8 @@ async function askTechMind() {
       data = await response.json();
     } catch (e) {
       throw new Error('Invalid response from server. Please try again.');
+    }
+    
     let answer = data.generated_text || 'No response';
     
     // Limpiar tokens de modelo
