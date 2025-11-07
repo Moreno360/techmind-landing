@@ -161,6 +161,9 @@
             .hero h1 { font-size: 2rem; }
         }
     </style>
+    
+    <!-- ✨ TechMind Enhanced CSS -->
+    <link rel="stylesheet" href="/public/css/techmind-enhanced.css">
 </head>
 <body>
     <!-- 🌍 LANGUAGE SELECTOR -->
@@ -452,115 +455,8 @@
             }
         }
 
-        async function askTechMind() {
-            const used = parseInt(localStorage.getItem('techmind_demos_used') || '0');
-            const t = translations[selectedLanguage];
-            
-            if (used >= MAX_FREE_DEMOS) {
-                const result = document.getElementById('demoResult');
-                result.style.display = 'block';
-                result.innerHTML = `
-                    <div style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); padding: 2.5rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                        <h3 style="font-size: 2rem; margin-bottom: 1rem;">🎯 ${selectedLanguage === 'es' ? '¡Has usado tus 5 demos gratis!' : selectedLanguage === 'en' ? 'You\'ve used your 5 free demos!' : selectedLanguage === 'fr' ? 'Vous avez utilisé vos 5 démos gratuits!' : selectedLanguage === 'de' ? 'Sie haben Ihre 5 kostenlosen Demos verwendet!' : 'Você usou suas 5 demos grátis!'}</h3>
-                        <p style="font-size: 1.2rem; margin-bottom: 2rem;">
-                            ${selectedLanguage === 'es' ? 'Suscríbete a' : selectedLanguage === 'en' ? 'Subscribe to' : selectedLanguage === 'fr' ? 'Abonnez-vous à' : selectedLanguage === 'de' ? 'Abonnieren Sie' : 'Assine'} <strong>TechMind Pro Premium</strong> ${selectedLanguage === 'es' ? 'por solo' : selectedLanguage === 'en' ? 'for only' : selectedLanguage === 'fr' ? 'pour seulement' : selectedLanguage === 'de' ? 'für nur' : 'por apenas'} <strong>€9.99/mes</strong>
-                        </p>
-                        <div style="background: white; padding: 1.5rem; border-radius: 10px; margin: 1.5rem 0;">
-                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">${t.premiumPlan[0]}</p>
-                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">${t.premiumPlan[1]}</p>
-                            <p style="font-size: 1.1rem; margin: 0.5rem 0;">${t.premiumPlan[2]}</p>
-                        </div>
-                        <button onclick="window.location.href='#pricing'" style="padding: 1.2rem 3rem; background: #4caf50; color: white; border: none; border-radius: 10px; font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-                            💎 ${selectedLanguage === 'es' ? 'Ver Planes Premium' : selectedLanguage === 'en' ? 'View Premium Plans' : selectedLanguage === 'fr' ? 'Voir les Plans Premium' : selectedLanguage === 'de' ? 'Premium-Pläne ansehen' : 'Ver Planos Premium'}
-                        </button>
-                        <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                            📧 ${selectedLanguage === 'es' ? 'Contacto' : selectedLanguage === 'en' ? 'Contact' : selectedLanguage === 'fr' ? 'Contact' : selectedLanguage === 'de' ? 'Kontakt' : 'Contato'}: hola.angelmoreno@gmail.com
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-            
-            const input = document.getElementById('demoInput');
-            const button = document.getElementById('demoButton');
-            const result = document.getElementById('demoResult');
-            const question = input.value.trim();
-            
-            if (!question) { 
-                alert(selectedLanguage === 'es' ? 'Por favor escribe una pregunta' : selectedLanguage === 'en' ? 'Please type a question' : selectedLanguage === 'fr' ? 'Veuillez taper une question' : selectedLanguage === 'de' ? 'Bitte geben Sie eine Frage ein' : 'Por favor digite uma pergunta'); 
-                return; 
-            }
-            
-            button.disabled = true; 
-            button.innerHTML = selectedLanguage === 'es' ? '⏳ Pensando...' : selectedLanguage === 'en' ? '⏳ Thinking...' : selectedLanguage === 'fr' ? '⏳ En réflexion...' : selectedLanguage === 'de' ? '⏳ Denke nach...' : '⏳ Pensando...'; 
-            input.disabled = true;
-            result.style.display = 'block';
-            result.innerHTML = `<div style="text-align:center; padding:40px; background:#f0f7ff; border-radius:15px;"><div class="loading-spinner"></div><p style="margin-top:20px; color:#667eea; font-weight:600;">${selectedLanguage === 'es' ? '🤔 TechMind está pensando...' : selectedLanguage === 'en' ? '🤔 TechMind is thinking...' : selectedLanguage === 'fr' ? '🤔 TechMind réfléchit...' : selectedLanguage === 'de' ? '🤔 TechMind denkt nach...' : '🤔 TechMind está pensando...'}</p><p style="color:#666; font-size:0.9em;"><small>${selectedLanguage === 'es' ? 'Primera vez 30-60 seg' : selectedLanguage === 'en' ? 'First time 30-60 sec' : selectedLanguage === 'fr' ? 'Première fois 30-60 sec' : selectedLanguage === 'de' ? 'Erstes Mal 30-60 Sek' : 'Primeira vez 30-60 seg'}</small></p></div>`;
-            
-            try {
-                const response = await fetch('/api/techmind', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: question, language: selectedLanguage })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Error ${response.status}`);
-                }
-                
-                const data = await response.json();
-                let answer = data.generated_text || (selectedLanguage === 'es' ? 'Sin respuesta' : selectedLanguage === 'en' ? 'No response' : selectedLanguage === 'fr' ? 'Pas de réponse' : selectedLanguage === 'de' ? 'Keine Antwort' : 'Sem resposta');
-                
-                if (answer.includes('[/INST]')) {
-                    answer = answer.split('[/INST]')[1].trim();
-                }
-                
-                result.innerHTML = `
-                    <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9); padding:30px; border-radius:15px; border-left:5px solid #4caf50;">
-                        <h4 style="color:#2e7d32;">✅ ${selectedLanguage === 'es' ? 'Respuesta de TechMind Pro' : selectedLanguage === 'en' ? 'TechMind Pro Response' : selectedLanguage === 'fr' ? 'Réponse de TechMind Pro' : selectedLanguage === 'de' ? 'TechMind Pro Antwort' : 'Resposta do TechMind Pro'}:</h4>
-                        <div style="background:white; padding:20px; border-radius:10px; margin:15px 0;">
-                            <pre style="white-space:pre-wrap; font-family:Consolas,monospace; line-height:1.8; margin:0;">${answer}</pre>
-                        </div>
-                        <button onclick="askAnother()" style="padding:10px 20px; background:white; border:2px solid #4caf50; border-radius:8px; cursor:pointer; color:#4caf50; font-weight:600;">
-                            🔄 ${selectedLanguage === 'es' ? 'Otra pregunta' : selectedLanguage === 'en' ? 'Another question' : selectedLanguage === 'fr' ? 'Autre question' : selectedLanguage === 'de' ? 'Andere Frage' : 'Outra pergunta'}
-                        </button>
-                    </div>
-                `;
-                
-                localStorage.setItem('techmind_demos_used', (used + 1).toString());
-                trackDemo(true);
-                updateDemoLimit();
-                
-            } catch (error) {
-                console.error('TechMind Error:', error);
-                console.error('Error details:', {
-                    name: error.name,
-                    message: error.message,
-                    stack: error.stack
-                });
-                
-                result.innerHTML = `
-                    <div style="background:#fff3cd; padding:30px; border-radius:15px;">
-                        <h4 style="color:#856404;">⏳ ${error.message}</h4>
-                        <p style="color:#856404;">
-                            ${error.message.includes('loading') 
-                                ? (selectedLanguage === 'es' ? 'El modelo está iniciando. Espera 60 segundos e intenta de nuevo.' : selectedLanguage === 'en' ? 'The model is starting. Wait 60 seconds and try again.' : selectedLanguage === 'fr' ? 'Le modèle démarre. Attendez 60 secondes et réessayez.' : selectedLanguage === 'de' ? 'Das Modell startet. Warten Sie 60 Sekunden und versuchen Sie es erneut.' : 'O modelo está iniciando. Aguarde 60 segundos e tente novamente.')
-                                : (selectedLanguage === 'es' ? 'Hubo un error. Intenta de nuevo.' : selectedLanguage === 'en' ? 'There was an error. Try again.' : selectedLanguage === 'fr' ? 'Il y a eu une erreur. Réessayez.' : selectedLanguage === 'de' ? 'Es gab einen Fehler. Versuchen Sie es erneut.' : 'Houve um erro. Tente novamente.')}
-                        </p>
-                        <button onclick="askTechMind()" style="margin-top:20px; padding:12px 24px; background:#ffc107; border:none; border-radius:8px; cursor:pointer;">
-                            🔄 ${selectedLanguage === 'es' ? 'Reintentar' : selectedLanguage === 'en' ? 'Retry' : selectedLanguage === 'fr' ? 'Réessayer' : selectedLanguage === 'de' ? 'Erneut versuchen' : 'Tentar novamente'}
-                        </button>
-                    </div>
-                `;
-                
-                trackDemo(false);
-            } finally { 
-                button.disabled = false; 
-                button.innerHTML = t.demo.button; 
-                input.disabled = false; 
-            }
-        }
+        // ✨ NOTA: La función askTechMind() ahora está en TechMindEnhanced.js
+        // (versión mejorada con visualización automática)
 
         function askAnother() { 
             document.getElementById('demoInput').value = ''; 
@@ -604,5 +500,11 @@
 
         console.log('✅ TechMind Pro Ready - Multilingual + PayPal');
     </script>
+    
+    <!-- ✨ TechMind Enhanced Scripts -->
+    <script src="/public/js/ResponseParser.js"></script>
+    <script src="/public/js/TopologyGenerator.js"></script>
+    <script src="/public/js/ResponseFormatter.js"></script>
+    <script src="/public/js/TechMindEnhanced.js"></script>
 </body>
 </html>
